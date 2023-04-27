@@ -1,0 +1,86 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.Services
+@using Shared.Utilities
+@model EditSizeViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_Sizes;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_Sizes)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @using (Html.BeginForm("SizeAdminUpdate", "Size", null, FormMethod.Post))
+    {
+        <input type="hidden" class="form-control" placeholder="@Resource.Size_Name" name="Id" value="@Model.Id">
+        <input type="hidden" name="RemoveOldImages" />
+        <div class="main-dialog" id="main-modal" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Resource.Size_Update_Size</h5>
+                    <div class=" button-group pull-right">
+                        <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+                        @Html.ActionLink(@Resource.Common_Close, "SizeAdmin", "Size", null, new {
+                @class="btn btn-sm btn-danger"
+                })
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="form-content">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Size_Number</label>
+                                <input type="text" class="form-control" placeholder="@Resource.Size_Number" name="Number" value="@Model.Number">
+                                @Html.ValidationMessageFor(d => d.Number)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Size_Unit</label>
+                                <input type="text" class="form-control" placeholder="@Resource.Size_Unit" name="Unit" value="@Model.Unit">
+                                @Html.ValidationMessageFor(d => d.Unit)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<script type="text/javascript">
+    var __splitter = '@splitter';
+    $(document).ready(function() {
+        var _model = @editModel;
+        FormUtils.SetFormValue('editSizeAdmin', _model);
+        LoaderService.Register();
+    });
+
+    function removeOldItem(item) {
+        var removeOldImages = $('[name=RemoveOldImages]');
+        var value = removeOldImages.val();
+        var images = value.split(__splitter).filter((item) => !!item);
+        images.push(item);
+        var imageStr = images.join(__splitter);
+        removeOldImages.val(imageStr);
+        $('#product-image-' + item).remove();
+    }
+</script>
+
+

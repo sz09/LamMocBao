@@ -1,0 +1,106 @@
+﻿@using LamMocBaoWeb.Resources
+@using System.Web
+@using LamMocBaoWeb.Utilities;
+@model LamMocBaoWeb.Models.Product
+@{
+    ViewData["Title"] = Model?.Name ?? Resource.Product_No_Result;
+}
+
+<div class="main-body advise-form container">
+    @if (ViewBag.NotFoundProduct != null)
+    {
+        <label><i>@Resource.Product_No_Result</i></label>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card detail-card">
+                    <div class="card-image card-padding">
+                        @Html.Raw(Model.ImageUrls.ToImageSlider(Model.Id, SliderMode.ShowPreview))
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card__title"> @Model.Name </div>
+                <div class="group-card__text">
+                    @foreach (var info in @Model.ShortInfomations)
+                    {
+                        <span class="card__text"> @info </span>
+                    }
+                </div>
+            </div>
+        </div>
+        @using (Html.BeginForm("AdviseByProduct", "Home", FormMethod.Post))
+        {
+            <div class="mt-5">
+                <h5 class="font-weight-bold">@Html.Raw(Resource.Advise_Contact_Messge)</h5>
+                <div class="container mt-2 p-0">
+                    <div class="form-group col-12 advise-form-content m-0">
+                        <h4 class="heading__subtitle">@Resource.Advise_Register</h4>
+                        <div class="col-md-12 p-0 m-0">  
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>@Resource.Customer_Name</label>
+                                    <input type="text" class="form-control" placeholder="@Resource.Customer_Name" name="CustomerName" required oninvalid="this.setCustomValidity('@Resource.Customer_Name_IsRequired')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>@Resource.Customer_Address</label>
+                                    <input type="text" class="form-control" placeholder="@Resource.Customer_Address" name="Address">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 p-0 m-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>@Resource.Customer_Phone</label>
+                                    <input type="tel" class="form-control" placeholder="@Resource.Customer_Phone" name="PhoneNumber" required oninvalid="this.setCustomValidity('@Resource.Customer_Phone_IsRequired')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>@Resource.Customer_Email</label>
+                                    <input type="email" class="form-control" placeholder="@Resource.Customer_Email" name="Email">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 p-0 m-0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>@Resource.Customer_Birthday</label>
+                                    <input type="tel" id="customer-birthday" class="form-control" placeholder="dd/MM/yyyy" name="Birthday">
+                                </div>
+                                <div class="col-md-6 align-self-center">
+                                    <div class="form-check row">
+                                        <input class="my-checkbox" type="checkbox" value="true" name="IncludeOtherProductsInterestedIn" id="IncludeOtherProductsInterestedIn" checked>
+                                        <label class="form-check-label" for="IncludeOtherProductsInterestedIn">
+                                            @Resource.Customer_Advising_IncludeOtherProductsInterestedIn
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="button-group m-auto text-right">
+                            <button type="submit" class="btn btn-success">@Resource.Common_Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="InterestedInProductIds" id="InterestedInProductIds" />
+                <input type="hidden" name="InterestedInProductId" id="InterestedInProductId" />
+            </div>
+        }
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/js/site.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#customer-birthday").datepicker({
+                    dateFormat: 'dd/mm/yy'
+                });
+                $('#InterestedInProductIds').val(CustomerHelper.GetInterestedInItems())
+                $('#InterestedInProductId').val('@ViewBag.CurrentProductId')
+            });
+        </script>
+    }
+</div>

@@ -1,0 +1,64 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+
+@{
+    var suggestionProducts = ViewBag.SuggestionProducts as List<Shared.Models.Product>;
+}
+<div class="step-title"><h4>SẢN PHẨM TƯƠNG TỰ</h4></div>
+<div class="mt-2">
+    <div class=" col-12 row m-auto p-0">
+        @foreach (var product in suggestionProducts)
+        {
+            <div class="col-lg-2 col-6 product-bound" link-name="@Url.ActionLink("ByLinkName", "Product", new {name = @product.LinkName})">
+                <div class="card product-item" style="margin-bottom: 1rem">
+                        @Html.Raw(@product.ProductImages.Select(d => d.UrlPreview).Take(1).ToImages())
+                    <div class="card-body custom-card-body">
+                        <ul class="product-tags">
+                            <p class="color-text text-center">@product.Name</p>
+                                @foreach (var tag in product.ProductTags)
+                                {
+                                    <li>@tag.Tag.Label</li>
+                                }
+                        </ul>
+                    </div>
+                    <div class="product-price-detail">  @(((decimal)product.SellingPrice).ToCultureCurrency())</div>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        registerOpenProduct();
+        registerOrder();
+    })
+
+    function registerOpenProduct() {
+        $('.product-bound').click(function (event) {
+            var elems = $(event.target).parents('.product-bound');
+            if (elems && elems.length) {
+                var elem = elems[0];
+                if (elem && elem.getAttribute('link-name')) {
+                    location.href = elem.getAttribute('link-name')
+                }
+            }
+        });
+    }
+
+    function registerOrder() {
+        $("#orderProduct").change(function () {
+            $('#products-page-form').submit();
+        })
+    }
+
+    function onSearch() {
+        $('#searchProduct').submit();
+    }
+</script>
+

@@ -1,0 +1,54 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using LamMocBaoWeb.ViewModels.Cart
+@using Services.Services
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment _environment
+@inject IServiceConfig _config 
+@{
+    ViewData["Title"] = @Resource.Label_Complete_Order;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="step-title">
+    <h4>@Resource.Finish_Label</h4>
+</div>
+<div class="group-direct-link mt-3" >
+    @await Html.PartialAsync("../Shared/OrderStatusDirectLink", CartStatus.Complete)
+</div>
+
+<div class="row col-md-8 m-auto form-group order-success-group">
+    <div class="f-content m-auto header">
+        <label class="color-text order-success-title">@Resource.Order_Success_Label</label>
+    </div>
+    <div class="form-group">
+        <label class="display-label">
+            @Resource.Order_Instructions_for_use_and_Maintenance
+        </label>
+        <div class="content">
+            @_config.OrderSuccessInfos.InstructionsForUseAndMaintenanceContent
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="display-label">
+            @Resource.Order_After_Sell_Policy
+        </label>
+        <div class="content">
+            @_config.OrderSuccessInfos.AfterSellPolicyContent
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="display-label">
+            @Resource.Order_Warranty_And_Return_Policy
+        </label>
+        <div class="content">
+            @_config.OrderSuccessInfos.WarrantyAndReturnPolicyContent
+        </div>
+    </div>
+</div>
+
+@*DANH MỤC SẢN PHẨM*@
+@*@await Html.PartialAsync("DanhMucSanPham.cshtml")*@
+
+@*KIẾN THỨC:*@
+@*@await Html.PartialAsync("KienThuc.cshtml")*@

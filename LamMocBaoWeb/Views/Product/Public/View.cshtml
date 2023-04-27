@@ -1,0 +1,25 @@
+﻿@model LamMocBaoWeb.Models.Product;
+@using LamMocBaoWeb.Resources;;
+
+@{
+    Layout = "~/Views/Shared/BaseDialog.cshtml";
+}
+
+<div>
+    <h4>@Resource.Product_Details</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-4">
+            @Resource.Product_Name
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-4">
+            @Resource.Product_Description
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>   
+</div>

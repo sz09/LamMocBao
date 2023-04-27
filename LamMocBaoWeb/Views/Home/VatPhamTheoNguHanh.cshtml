@@ -1,0 +1,64 @@
+﻿@using LamMocBaoWeb.Resources
+<div id="vat-pham">
+    <div class="title">
+        <h4>VẬT PHẨM THEO NGŨ HÀNH</h4>
+    </div>
+    <div class="p-0">
+        <div id="blogCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                @if (Convert.ToInt32(@Context.Request.Cookies.FirstOrDefault(d => d.Key == "userdevice").Value) <= 390)
+                {
+                    @for (int i = 0; i <= (ViewBag.ProductTypes as List<Shared.Models.ProductType>).Count() / 2; i++)
+                    {
+                        <div class="carousel-item @(@i == 0 ? "active": "")">
+                            <div class="row">
+                                @foreach (var item in (ViewBag.ProductTypes as List<Shared.Models.ProductType>).Skip(i * 2).Take(2))
+                                {
+
+                                    <div class="col-6 pt-3">
+                                        <div class="card product-item">
+                                            <img class="card-img-top" src="@item.DisplayImageUrl" alt="@item.Name">
+                                            <div class="card-body">
+                                                <h5 class="card-title">@item.Name</h5>
+                                                <p class="card-text no-wrap-content">@item.Description</p>
+                                            </div>
+                                            <a href="@Url.ActionLink("Index", "Product")?filter.type=@item.Id"><h6>@Resource.HomePage_SeeMore</h6></a>
+                                        </div>
+                                    </div>
+
+                                }
+                            </div>
+                        </div>
+                    }
+                    <a class="carousel-control-prev" href="#blogCarousel" role="button" data-slide="prev">
+                        <span class="fa fa-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#blogCarousel" role="button" data-slide="next">
+                        <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var item in (ViewBag.ProductTypes as List<Shared.Models.ProductType>))
+                        {
+
+                            <div class="col-md pt-3" >
+                                <div class="card product-item">
+                                    <img class="card-img-top" src="@item.DisplayImageUrl" alt="@item.Name">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.Name</h5>
+                                        <p class="card-text no-wrap-content">@item.Description</p>
+                                    </div>
+                                    <a href="@Url.ActionLink("Index", "Product")?filter.type=@item.Id"><h6>@Resource.HomePage_SeeMore</h6></a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

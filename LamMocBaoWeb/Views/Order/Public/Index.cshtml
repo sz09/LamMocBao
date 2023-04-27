@@ -1,0 +1,411 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@using LamMocBaoWeb.ViewModels.Cart
+@using Microsoft.AspNetCore.Hosting
+@using Services.Services
+@inject IServiceConfig _config
+@inject IWebHostEnvironment _environment
+@model OrderViewModel
+
+@{
+    ViewData["Title"] = @Resource.Label_Payments;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+@if (Model != null)
+{
+    <div class="group-direct-link mt-3">
+        @await Html.PartialAsync("../Shared/OrderStatusDirectLink", CartStatus.OnPayment)
+    </div>
+    @using (Html.BeginForm("DoOrder", "Order"))
+    {
+        <input type="hidden" name="PromotionCode" value="@Model.PromotionInfo?.Code">
+        <div class="row col-md-12">
+            <div class="col-md-6">
+                <div class="custom-background-form">
+                    <div class="row color-text"><label>@Resource.Label_PaymentInfos</label></div>
+                    <div class="form-group row col-md-12">
+                        <label for="full-name" class="color-text">@Resource.Customer_FullName</label>
+                        <input type="text" class="form-control color-text custom-form" id="full-name" name="Customer.FullName" placeholder="@Resource.Customer_Input_FullName_PlaceHolder"
+                       required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_FullName')" oninput="setCustomValidity('')">
+                    </div>
+                    <div class="form-group row mr-3">
+                        <div class="col-md-6 d-inline-block">
+                            <label for="phone-number" class="color-text">@Resource.Customer_PhoneNumber</label>
+                            <input type="tel" class="form-control color-text custom-form" id="phone-number" name="Customer.PhoneNumber" placeholder="@Resource.Customer_Input_PhoneNumber_PlaceHolder"
+                           required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_PhoneNumber')" oninput="setCustomValidity('')">
+                        </div>
+                        <div class="col-md-6 d-inline-block">
+                            <label for="email" class="color-text">@Resource.Customer_Email</label>
+                            <input type="email" class="form-control color-text custom-form" id="email" name="Customer.Email" placeholder="@Resource.Customer_Input_Email_PlaceHolder"
+                           required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Email')" oninput="setCustomValidity('')">
+                        </div>
+                    </div>
+                    <div class="form-group row col-md-12 mr-3">
+                        <label class="row col-md-12 d-block color-text" for="phone-number">@Resource.Customer_Birthday</label>
+                        <div class="row col-md-12 birth-day-type-options">
+                            <div class="form-check">
+                                <input class="form-check-input color-text custom-form" type="radio" name="Customer.BirthDayType" value="LunarCalendar" id="LunarCalendar" checked>
+                                <label class="form-check-label color-text" for="LunarCalendar">
+                                    @Resource.Customer_Birthday_LunarCalendar
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input color-text custom-form" type="radio" name="Customer.BirthDayType" value="SolarCalendar" id="SolarCalendar">
+                                <label class="form-check-label color-text" for="SolarCalendar">
+                                    @Resource.Customer_Birthday_SolarCalendar
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row col-md-12 d-inline-block">
+                            <input type="tel" class="form-control d-inline-block col-md-6 color-text custom-form" id="customer-date" name="Customer.BirthDayDate" placeholder="DD/MM/YYYY">
+                            <span class="hour d-inline-block color-text">@Resource.Customer_Birday_Hour</span>
+                            <input type="tel" class="form-control col-md-3 d-inline-block color-text custom-form" id="time" name="Customer.BirthDayTime" placeholder="HH:MM">
+                        </div>
+                        <small class="color-text"><i>@Resource.Customer_InformBirthday_To_Receive_New_Events</i></small>
+                    </div>
+
+                    <div class="form-group row address">
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <label for="phone-number" class="color-text">@Resource.Customer_Address_Province</label>
+                                <select name="Address.Province" class="w-100 form-select color-text custom-form" id="city" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Province')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_Province</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone-number" class="color-text">@Resource.Customer_Address_District</label>
+                                <select name="Address.District" class="w-100 form-select custom-form" id="district" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_District')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_District</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <label for="phone-number" class="color-text">@Resource.Customer_Address_Ward</label>
+                                <select name="Address.Ward" class="w-100 form-select custom-form" id="ward" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Ward')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_Ward</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone-number"  class="color-text">@Resource.Customer_Address_NumberAndStreet</label>
+                                <input type="text" class="form-control color-text custom-form" id="phone-number" name="Address.NumberAndStreet" placeholder="@Resource.Customer_Address_NumberAndStreet">
+                            </div>
+                        </div>
+                     @*   <div class="row col-md-12">
+                            <div class="form-check col-md-12 ml-3 mt-2">
+                                <input class="form-check-input" type="checkbox" value="false" id="is-create-new-account" name="IsCreateNewAccount">
+                                <label class="form-check-label" for="is-create-new-account">
+                                    @Resource.Customer_IsCreateNewAccount
+                                </label>
+                            </div>
+                        </div>*@
+                        <div class="row col-md-12">
+                            <div class="form-check col-md-12 ml-3 mt-2">
+                                <input class="form-check-input color-text custom-form" type="checkbox" value="false" id="is-ship-to-another-address" name="IsDeliveryToAnotherAddress" />
+                                <label class="form-check-label color-text" for="is-ship-to-another-address">
+                                    @Resource.Customer_IsShipToAnother_Address
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="col-md-12">
+                                <label for="validationTextarea" class="color-text">@Resource.Order_Note</label>
+                                <textarea class="form-control color-text custom-form" rows="7" placeholder="@Resource.Order_Note" name="Note"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row address d-none" id="ship-to-another-address-panel">
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <label for="deliverycity" class="color-text">@Resource.Customer_Address_Province</label>
+                                <select name="DeliveryAddress.Province" class="w-100 form-select custom-form" disabled id="deliverycity" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Province')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_Province</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="deliverydistrict" class="color-text">@Resource.Customer_Address_District</label>
+                                <select name="DeliveryAddress.District" class="w-100 form-select custom-form" disabled id="deliverydistrict" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_District')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_District</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <label for="deliveryward" class="color-text">@Resource.Customer_Address_Ward</label>
+                                <select name="DeliveryAddress.Ward" class="w-100 form-select custom-form" disabled id="deliveryward" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Ward')" oninput="setCustomValidity('')">
+                                    <option value="">@Resource.Customer_Address_Ward</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="deliveryphonenumber" class="color-text">@Resource.Customer_Address_NumberAndStreet</label>
+                                <input type="text" class="form-control custom-form" id="deliverynumberandstreet" disabled name="DeliveryAddress.NumberAndStreet" placeholder="@Resource.Customer_Address_NumberAndStreet">
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="col-md-6">
+                                <label for="deliveryreceiver" class="color-text">@Resource.Customer_Receiver</label>
+                                <input type="text" class="form-control custom-form" id="deliveryreceiver" disabled name="DeliveryAddress.Receiver" placeholder="@Resource.Customer_Receiver">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="deliveryphonenumber" class="color-text">@Resource.Customer_PhoneNumber</label>
+                                <input type="text" class="form-control custom-form" id="deliveryphonenumber" disabled name="DeliveryAddress.PhoneNumber" placeholder="@Resource.Customer_PhoneNumber">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 order-details">
+                <div>
+                    <div class="row color-text"><label>@Resource.Label_YourOrder</label></div>
+                    <div class="row color-text"><label>@Resource.Label_Products</label></div>
+                    <div class="orders pl-3 pr-5">
+                        @foreach (var item in Model.ProductCarts.Select((item, index) => new { obj = item, index }))
+                        {
+                            <div class="row order-row">
+                                <div class="product-preview col-md-7">
+                                    <div class="d-inline-block">
+                                        <span class="d-inline-block color-text">@item.obj.Name (@item.obj.SizeName)</span>
+                                    </div>
+                                </div>
+                                <span class="col-md-1 p-0 color-text"> <i class="fa-sharp fa-solid fa-xmark"></i> @item.obj.Quantity </span>
+                                <span class="col-md-4 text-right color-text">@item.obj.TotalPrice.ToCultureCurrency()</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="orders-preview-price">
+                        <div class="row col-md-12">
+                            <div class="col-md-8 color-text"><label>@Resource.Product_Temp_Sum_Price</label></div>
+                            <div class="col-md-4 text-right color-text"><label>@Model.SumPrice.ToCultureCurrency()</label></div>
+                        </div>
+                        <div class="row col-md-12 mb-1">
+                            <div class="col-md-6 color-text color-text">@Resource.Product_Delivery_Fee</div>
+                            <small class="col-md-6 pull-right discount-fee-content text-right color-text"><i>@Resource.Product_Delivery_Fee_Content</i></small>
+                        </div>
+                        @if (Model.PromotionInfo != null)
+                        {
+                            <div class="row col-md-12">
+                                <div class="col-md-6 color-text">@Resource.Product_Promotion_Code</div>
+                                <div id="promotion-discount-infos" class="col-md-6 text-right color-text">@Model.PromotionInfo.Message</div>
+                            </div>
+                        }
+                    </div>
+                    <div class="orders-payment-method">
+                        <div class="row col-md-12">
+                            <label class="col-md-6 color-text">@Resource.Product_CalculatedPrice_Total</label>
+                            <label class="col-md-6 text-right calculated-price-total color-text">@Model.CalculatePrice.ToCultureCurrency()</label>
+                        </div>
+                    </div>
+
+                    <div class="orders-payment-methods">
+                        <div class="form-check">
+                            <input class="form-check-input color-text" type="radio" name="PaymentType" id="COD" value="COD">
+                            <label class="form-check-label color-text" for="COD">
+                                @Resource.Payment_Method_COD
+                            </label>
+                        </div>
+                        <div class="form-check bank-tranfer">
+                            <input class="form-check-input color-text" type="radio" name="PaymentType" id="BankTranfer" value="BankTranfer" checked>
+                            <label class="form-check-label color-text" for="BankTranfer">
+                                @Resource.Payment_Method_BankTransfer
+                            </label>
+                            <label class="form-check-label d-block color-text" for="BankTranfer">
+                                @Resource.SystemSetting_BankAccount: @_config.PaymentInfos.BankAccount
+                            </label>
+                            <label class="form-check-label d-block color-text" for="BankTranfer">
+                                @Resource.SystemSetting_CardHolderName: @_config.PaymentInfos.CardHolderName
+                            </label>
+                            <label class="form-check-label d-block color-text" for="BankTranfer">
+                                @Resource.SystemSetting_BankName: @_config.PaymentInfos.BankName
+                            </label>
+                            <label class="form-check-label d-block color-text" for="BankTranfer">
+                                @Resource.Payment_Content
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="w-f-content m-auto">
+                            <button type="submit" class="btn lmb-btn btn-primary">@Resource.Product_Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+}
+@section PageScripts {
+    <script type="text/javascript">
+        function shipToAnotherAddressToggle() {
+            $('#ship-to-another-address-panel').toggleClass('d-none');
+            if( $('#ship-to-another-address-panel').hasClass('d-none')){
+                $('#deliverycity').prop('disabled', true)
+                $('#deliverydistrict').prop('disabled', true)
+                $('#deliveryward').prop('disabled', true)
+                $('#deliveryphonenumber').prop('disabled', true)
+                $('#deliverynumberandstreet').prop('disabled', true)
+                $('#deliveryreceiver').prop('disabled', true)
+            }
+            else {
+                $('#deliverycity').prop('disabled', false)
+                $('#deliverydistrict').prop('disabled', false)
+                $('#deliveryward').prop('disabled', false)
+                $('#deliveryphonenumber').prop('disabled', false)
+                $('#deliverynumberandstreet').prop('disabled', false)
+                $('#deliveryreceiver').prop('disabled', false)
+            }
+        }
+
+        function checkboxChangeToggleBoolean(me) {
+            var currentValue = $(me).val();
+            if(currentValue == 'true'){
+                $(me).val('false');
+            }
+            else {
+                $(me).val('true');
+            }
+        }
+
+        $(document).ready(function() {
+            $('.promotion-code').on('keypress', function(event) {
+                onPromotionEnter(event)
+            });
+            $('.btn-delete-cart').on('click', function(event) {
+                onRemoveCart(event.currentTarget.id)
+            });
+
+            $("#customer-date").datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+            $('#is-ship-to-another-address').change(function(){
+                shipToAnotherAddressToggle();
+            })
+            $('input[type=checkbox]').change(function(){
+                var me = this;
+                checkboxChangeToggleBoolean(me);
+            })
+        });
+
+        function onPromotionEnter(event) {
+            if (event.code === 'Enter') {
+                var code = $(event.target).val();
+                if (code) {
+                    var url = `@Url.ActionLink("Check", "Promotion")?code=${code}`
+                    $.ajax({
+                        url: url,
+                        success: function(response, textstatus, jqxhr) {
+                            if (response.Success) {
+                                $('#promotion-discount-infos').text(response.Data.DiscountInfo);
+                                $('#calculated-price-total').text(response.Data.CalculatedPrice);
+                            }
+                            else {
+                                $('#promotion-discount-infos').text(response.Data.ErrorMessage);
+                                $('#calculated-price-total').text('@Html.Raw(Model.SumPrice.ToCultureCurrency())');
+                            }
+                        }
+                    });
+                }
+                else {
+                    $('#promotion-discount-infos').text('');
+                }
+            }
+        }
+
+        function onRemoveCart(id) {
+            var url = `@Url.ActionLink("RemoveItem", "Cart")?id=${id}`
+            $.ajax({
+                url: url,
+                method: 'delete',
+                success: function(response) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        var citis = document.getElementById("city");
+        var districts = document.getElementById("district");
+        var wards = document.getElementById("ward");
+        var Parameter = {
+            url: '/lib/vn-address.json',
+            method: "GET",
+            responseType: "application/json",
+        };
+        var promise = axios(Parameter);
+        promise.then(function(result) {
+            renderCity(result.data);
+        });
+
+        function renderCity(data) {
+            for (const x of data) {
+                citis.options[citis.options.length] = new Option(x.Name, x.Id);
+            }
+            citis.onchange = function() {
+                district.length = 1;
+                ward.length = 1;
+                if (this.value != "") {
+                    const result = data.filter(n => n.Id === this.value);
+
+                    for (const k of result[0].Districts) {
+                        district.options[district.options.length] = new Option(k.Name, k.Id);
+                    }
+                }
+            };
+            district.onchange = function() {
+                ward.length = 1;
+                const dataCity = data.filter((n) => n.Id === citis.value);
+                if (this.value != "") {
+                    const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                    for (const w of dataWards) {
+                        wards.options[wards.options.length] = new Option(w.Name, w.Id);
+                    }
+                }
+            };
+        }
+
+        var deliveryCitis = document.getElementById("deliverycity");
+        var deliveryDistricts = document.getElementById("deliverydistrict");
+        var deliveryWards = document.getElementById("deliveryward");
+        var Parameter1 = {
+            url: '/lib/vn-address.json',
+            method: "GET",
+            responseType: "application/json",
+        };
+        var promise1 = axios(Parameter1);
+        promise1.then(function(result) {
+            renderCity1(result.data);
+        });
+
+        function renderCity1(data) {
+            for (const x of data) {
+                deliveryCitis.options[deliveryCitis.options.length] = new Option(x.Name, x.Id);
+            }
+            deliveryCitis.onchange = function() {
+                deliverydistrict.length = 1;
+                deliveryward.length = 1;
+                if (this.value != "") {
+                    const result = data.filter(n => n.Id === this.value);
+
+                    for (const k of result[0].Districts) {
+                        deliveryDistricts.options[deliveryDistricts.options.length] = new Option(k.Name, k.Id);
+                    }
+                }
+            };
+            deliveryDistricts.onchange = function() {
+                deliveryward.length = 1;
+                const dataCity = data.filter((n) => n.Id === deliveryCitis.value);
+                if (this.value != "") {
+                    const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                    for (const w of dataWards) {
+                        deliveryWards.options[deliveryWards.options.length] = new Option(w.Name, w.Id);
+                    }
+                }
+            };
+        }
+
+
+    </script>
+}

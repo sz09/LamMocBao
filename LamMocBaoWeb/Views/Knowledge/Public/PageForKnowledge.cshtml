@@ -1,0 +1,51 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@inject IServiceConfig _serviceConfig
+@model KnowledgeViewModel
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="step-title mb-3">
+    <h4>KIẾN THỨC</h4>
+</div>
+
+<div class="row col-12 m-auto">
+    <div class="col-md-8 col-12  knowledge-detail-group">
+        <h4 class="color-text text-center">
+            @Model.Name
+        </h4>
+        <div class="knowledge-page-by-name">
+            <div class="pre-wrap">
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+        @*<div class="d-flex">
+            <span>Chia sẻ</span>
+            <ul class="social-icons ml-2">
+                <li>
+                    <a class="youtube" href="@_serviceConfig.ContactInfos.Youtube" target="_blank">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                </li>
+                <li>
+                    <a class="facebook" href="@_serviceConfig.ContactInfos.Facebook" target="_blank">
+                        <i class="fa-brands fa-facebook"></i>
+                    </a>
+                </li>
+                <li>
+                    <a class="instagram" href="@_serviceConfig.ContactInfos.Instagram" target="_blank">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>*@
+    </div>
+
+    <div class="line-through"></div>
+
+    @await Html.PartialAsync("ListLinkKnowledge.cshtml")
+
+</div>

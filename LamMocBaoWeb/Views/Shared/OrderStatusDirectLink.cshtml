@@ -1,0 +1,9 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels.Cart
+@model CartStatus
+
+<a class="direct-link @(CartStatus.OnCart == Model ? "active": "")" href="/gio-hang">@Resource.Cart_Label</a> 
+<span>></span> 
+<a class="direct-link @(CartStatus.OnPayment == Model ? "active": "")" href="/dat-hang">@Resource.Paid_Label</a> 
+<span>></span> 
+<a class="direct-link @(CartStatus.Complete == Model ? "active" : "")" href="/dat-hang/thanh-cong">@Resource.Finish_Label</a>

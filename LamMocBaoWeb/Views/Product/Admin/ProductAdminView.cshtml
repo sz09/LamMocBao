@@ -1,0 +1,73 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Shared.Utilities
+@model EditProductViewModel
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+<style>
+    .main-content {
+        max-height: 550px;
+        overflow-y: auto;
+    }
+</style>
+<div class="modal modal-dialog modal-xl" id="main-modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">@Resource.Product_Infomation: @Model.Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="col-md-12 main-content">
+            <div class="form-group row">
+                <label>@Resource.Product_Summary</label>
+                <textarea class="form-control" placeholder="@Resource.Product_Summary" name="Description" rows="3" disabled>@Model.Description</textarea>
+            </div>
+            <div class="form-group row">
+                <label>@Resource.Product_Description</label>
+                <textarea class="form-control" placeholder="@Resource.Product_Description" name="Infomations" rows="7" disabled>@Model.Infomations</textarea>
+            </div>
+            <div class="form-group row">
+                <div class="custom-file mb-3">
+                    <div class="d-block">
+                        @if (Model.Images.Any())
+                        {
+                            <label>@Resource.Product_Images</label>
+                            <div class="col-12 row" id="old-images">
+                                @foreach (var item in Model.Images)
+                                {
+                                    <div class="old-image col-md-3 p-1" id="product-image-@item.Id">
+                                        <img src="@item.Url" />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" button-group pull-right">
+            <button class="btn btn-sm btn-info" onclick="editProduct('@Model.Id')">@Resource.Common_Edit</button>
+            <button class="btn btn-sm btn-danger" data-dismiss="modal">@Resource.Common_Close</button>
+        </div>
+    </div>
+</div>
+<script>
+    
+    function editProduct(id) {
+        $('#main-modal').modal('hide');
+        $.ajax({
+            url: '/admin/san-pham/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,29 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using Services.Services
+@inject IServiceConfig config
+@{
+    ViewData["Title"] = @Resource.Error_Page_Title;
+}
+<div class="error-page">
+    <div class='eye'></div>
+    <div class='eye'></div>
+    <p class='sub-text color-text'>@Html.Raw(string.Format(Resource.Error_Page_Message, Html.Raw(config.ContactInfos.ContactPhoneNumbers.ToTel())))</p>
+    @*<a class="btn lmb-btn" href="@Url.ActionLink("HomePage", "Home")">@Resource.Return_Back_Homepage</a>*@
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $('body').mousemove(function (event) {
+        var e = $('.error-page .eye');
+        var x = (e.offset().left) + (e.width() / 2);
+        var y = (e.offset().top) + (e.height() / 2);
+        var rad = Math.atan2(event.pageX - x, event.pageY - y);
+        var rot = (rad * (180 / Math.PI) * -1) + 180;
+        e.css({
+            '-webkit-transform': 'rotate(' + rot + 'deg)',
+            'transform': 'rotate(' + rot + 'deg)'
+        });
+    });
+
+</script>

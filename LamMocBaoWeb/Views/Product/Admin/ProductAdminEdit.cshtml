@@ -1,0 +1,307 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.ModelResult
+@using Services.Services
+@using Shared.Models
+@using Shared.Utilities
+@model EditProductViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_Products;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_Products)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @using (Html.BeginForm("ProductAdminUpdate", "Product", null, FormMethod.Post))
+    {
+        <input type="hidden" class="form-control" placeholder="@Resource.Product_Name" name="Id" value="@Model.Id">
+        <input type="hidden" name="RemoveOldImages" />
+        <div class="main-dialog" id="main-modal" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Resource.Product_Update_Product</h5>
+                    <div class=" button-group pull-right">
+                        <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+                        @Html.ActionLink(@Resource.Common_Close, "ProductAdmin", "Product", null, new {
+                @class="btn btn-sm btn-danger"
+                })
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="form-content">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Product_Name</label>
+                                <input type="text" class="form-control" placeholder="@Resource.Product_Name" name="Name" value="@Model.Name">
+                                @Html.ValidationMessageFor(d => d.Name)
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Product_From</label>
+                                <input type="text" class="form-control" placeholder="@Resource.Product_From" name="ProductFrom" value="@Model.ProductFrom">
+                                @Html.ValidationMessageFor(d => d.ProductFrom)
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Categories</label>
+                                <div class="col-md-12">
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                        int index = 0;
+                                        foreach (var group in (Dictionary<CategoryGroup, List<Category>>)ViewBag.Categories)
+                                        {
+                                            <div class="row col-md-12 d-block">
+                                                <p> <b>@group.Key.GetEnumDescription()</b></p>
+                                                @foreach (var item in group.Value)
+                                                {
+                                                    <div class="form-check form-check-inline col-md-2">
+                                                        <input type="checkbox" class="form-check-input" name="CategoryIds[@index]" value="@item.Id" id="@item.Id" @(Model.CategoryIds.Contains(item.Id) ? "checked": "") />
+                                                        <label class="form-check-label" for="@item.Id"> @item.Name </label>
+                                                    </div>
+                                                    index++;
+                                                }
+                                            </div>
+
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_ProductTypes</label>
+                                <select data-val="true" id="ProductTypeId" class="form-control" name="ProductTypeId">
+                                    <option value="">@Resource.Label_Common_PleaseSelectItem</option>
+                                    @if (ViewBag.ProductTypes != null)
+                                    {
+                                        foreach (var item in (SelectList)ViewBag.ProductTypes)
+                                        {
+                                            var guid = Guid.Parse(item.Value);
+                                            if (Model.ProductTypeId == guid)
+                                            {
+                                                <option value="@item.Value" selected>@item.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                @Html.ValidationMessageFor(d => d.ProductTypeId)
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Tags_By_ProductTypes</label>
+                                @if (ViewBag.ProductTypeTags != null)
+                                {
+                                    foreach (var productTypeTag in (List<ProductTypeTagModel>)ViewBag.ProductTypeTags)
+                                    {
+                                        <div class="col-md-12 d-none" id="product-type-tag-@productTypeTag.Id">
+                                            @foreach (var item in productTypeTag.Tags.Select((d, i) => new { item = d, index = i }))
+                                            {
+                                                <div class="form-check form-check-inline">
+                                                    <input type="checkbox" class="form-check-input" name="ProductTypeTagIds[@item.index]" value="@item.item.Id" id="@item.item.Id-product-type-tag-check"
+                                                        @(Model.ProductTypeTagIds.Contains(item.item.Id) ? "checked": "") />
+                                                    <label class="form-check-label" for="@item.item.Id-product-type-tag-check"> @item.item.Label </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Tags</label>
+                                <div class="col-md-12">
+                                    @if (ViewBag.Tags != null)
+                                    {
+                                        int index = 0;
+                                        foreach (var item in (SelectList)ViewBag.Tags)
+                                        {
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" name="TagIds[@index]" value="@item.Value" id="@item.Value" @(Model.TagIdStrs.Contains(item.Value) ? "checked": "") />
+                                                <label class="form-check-label" for="@item.Value"> @item.Text </label>
+                                            </div>
+                                            index++;
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Sizes</label>
+                                <div class="col-md-12">
+                                    @if (ViewBag.Sizes != null)
+                                    {
+                                        int index = 0;
+                                        foreach (var item in (List<IdLabel>)ViewBag.Sizes)
+                                        {
+                                            var containSize = Model.SizeIds.Contains(item.Id.Value);
+                                            var status = !containSize ? "" : "disabled";
+                                            <div class="form-check form-check-inline col-md-5">
+                                                <div class="col-md-4">
+                                                    <input type="checkbox" class="form-check-input" name="SizeIds[@index]" value="@item.Id" id="check-box-size-@item.Id" @(containSize ? "checked": "") />
+                                                    <label class="form-check-label" for="check-box-size-@item.Id"> @item.Label </label>
+                                                </div>
+                                                <div class="input-group col-md-8" id="price-by-size-@item.Id">
+                                                    @if (Model.PriceBySizes.ContainsKey(item.Id.Value) && @Model.PriceBySizes[item.Id.Value].HasValue)
+                                                    {
+                                                        <input type="text" class="form-control currency" value="@Model.PriceBySizes[item.Id.Value]" @status placeholder="@Resource.Product_SellingPrice" name="PriceBySizes[@item.Id]" aria-describedby="currency-3">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" class="form-control currency" @status placeholder="@Resource.Product_SellingPrice" name="PriceBySizes[@item.Id]" aria-describedby="currency-3">
+                                                    }
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text" id="currency-3">@_config.Currency_Symbol</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            index++;
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Materials</label>
+                                <div class="col-md-12">
+                                    @if (ViewBag.Materials != null)
+                                    {
+                                        int index = 0;
+                                        foreach (var item in (SelectList)ViewBag.Materials)
+                                        {
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" name="MaterialIds[@index]" value="@item.Value" id="@item.Value" @(Model.MaterialIdStrs.Contains(item.Value) ? "checked": "") />
+                                                <label class="form-check-label" for="@item.Value"> @item.Text </label>
+                                            </div>
+                                            index++;
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-6 pl-0">
+                                    <label>@Resource.Product_PurchasingPrice</label>
+                                    <div class="input-group">
+                                        <input type="text" value="@Model.PurchasingPrice" class="form-control currency" placeholder="@Resource.Product_PurchasingPrice" name="PurchasingPrice" aria-describedby="currency-2">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text" id="currency-2">@_config.Currency_Symbol</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 pr-0">
+                                    <label>@Resource.Product_SellingPrice</label>
+                                    <div class="input-group">
+                                        <input type="text" value="@Model.SellingPrice" class="form-control currency" placeholder="@Resource.Product_SellingPrice" name="SellingPrice" aria-describedby="currency-2">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text" id="currency-2">@_config.Currency_Symbol</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Product_Summary</label>
+                                <textarea class="form-control" placeholder="@Resource.Product_Summary" name="Description" rows="3">@Model.Description</textarea>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Product_Description</label>
+                                <textarea class="form-control" placeholder="@Resource.Product_Description" name="Infomations" rows="7">@Model.Infomations</textarea>
+                            </div>
+                            <div class="form-group row">
+                                <div class="d-block">
+                                    @if (Model.Images.Any())
+                                    {
+                                        <label>@Resource.Product_CurrentImages</label>
+                                        <div class="col-12 row" id="old-images">
+                                            @foreach (var item in Model.Images)
+                                            {
+                                                <div class="old-image col-md-3 p-1" id="product-image-@item.Id">
+                                                    <img src="@item.Url" />
+                                                    <button type="button" class="btn btn-sm" onclick="removeOldItem('@item.Id')">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row d-block">
+                                @await Html.PartialAsync("../../Upload/Upload.cshtml", new CommonDataTransfer { Data = Model.Id })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+<script type="text/javascript">
+    var __splitter = '@splitter';
+    $(document).ready(function() {
+        var _model = @editModel;
+        FormUtils.SetFormValue('editProductAdmin', _model);
+        LoaderService.Register();
+        registerProductTypeChange();
+        $('select#ProductTypeId').trigger('change');
+
+        $("input.currency").on('keyup', function() {
+            if (!($(this).val())) {
+                return;
+            }
+            var n = parseInt($(this).val().replace(/\D/g, ''), 10);
+            $(this).val(n.toLocaleString("vi-VN"));
+        });
+        $('input.currency').trigger('keyup');
+
+        $('[id^=check-box-size-]').on('change', function(event) {
+            var sizeId = event.currentTarget.id.replace('check-box-size-', '');
+            $(`#price-by-size-${sizeId} input`).prop('disabled', (i, v) => !v);
+        })
+        $('[id^=check-box-size-]').trigger('change');
+    });
+
+    function removeOldItem(item) {
+        var removeOldImages = $('[name=RemoveOldImages]');
+        var value = removeOldImages.val();
+        var images = value.split(__splitter).filter((item) => !!item);
+        images.push(item);
+        var imageStr = images.join(__splitter);
+        removeOldImages.val(imageStr);
+        $('#product-image-' + item).remove();
+    }
+
+    function registerProductTypeChange() {
+        $('select#ProductTypeId').on('change', function(event) {
+            console.log(event.target.value);
+            $('[id^=product-type-tag]').each(function(index, elem) {
+                if (elem.id.indexOf(event.target.value) > 0) {
+                    $(elem).removeClass('d-none');
+                    $(elem).children().children('input').each(function(i, item) {
+                        $(item).prop('disabled', false);
+                    });
+                }
+                else {
+                    $(elem).addClass('d-none');
+                    $(elem).children().children('input').each(function(i, item) {
+                        $(item).prop('disabled', true);
+                    });
+                }
+            })
+            //
+        })
+    }
+</script>
+
+

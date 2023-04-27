@@ -1,0 +1,52 @@
+﻿@using LamMocBaoWeb.Controllers
+@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@model CreateProductTypeModel
+@inject IServiceConfig _config 
+
+@{
+    ViewData["Title"] = @Resource.Label_ProductTypes;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@using (Html.BeginForm("ProductTypeAdminCreate", "ProductType", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.ProductType_CreateNew_ProductType</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Create
+                    </button>
+                    @Html.ActionLink(@Resource.Common_Close, "ProductTypeAdmin", "ProductType", null, new {
+                        @class="btn btn-sm btn-danger"
+                    })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.ProductType_Name</label>
+                            <input type="text" class="form-control" placeholder="@Resource.ProductType_Name" name="Name" value="@Model.Name">
+                            @Html.ValidationMessageFor(d => d.Name)
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.ProductType_SubTypes</label>
+                            <input type="text" class="form-control" placeholder="@Resource.ProductType_SubTypes_Hint" name="SubTypes" value="@Model.SubTypes">
+                            @Html.ValidationMessageFor(d => d.SubTypes)
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.ProductType_SequenceNumber</label>
+                            <input type="number" readonly class="form-control" placeholder="@Resource.ProductType_SequenceNumber" name="SequenceNumber" value="@Model.SequenceNumber">
+                            @Html.ValidationMessageFor(d => d.SequenceNumber)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

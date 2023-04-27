@@ -1,0 +1,115 @@
+﻿@using LamMocBaoWeb.Controllers
+@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@model CreatePromotionModel
+@inject IServiceConfig _config 
+
+@{
+    ViewData["Title"] = @Resource.Label_Promotions;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@using (Html.BeginForm("PromotionAdminCreate", "Promotion", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.Promotion_CreateNew_Promotion</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Create
+                    </button>
+                    @Html.ActionLink(@Resource.Common_Close, "PromotionAdmin", "Promotion", null, new {
+                        @class="btn btn-sm btn-danger"
+                    })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Promotion_Code</label>
+                            <input type="text" class="form-control" placeholder="@Resource.Promotion_Code" name="Code" value="@Model.Code">
+                            @Html.ValidationMessageFor(d => d.Code)
+                        </div>
+                    </div>
+                   @* <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Promotion_Content</label>
+                            <textarea class="form-control" placeholder="@Resource.Promotion_Content" name="Content" rows="3">@Model.Content </textarea>
+                        </div>
+                    </div>*@
+                   <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Promotion_Mode</label>
+                             <div class="row col-md-12">
+                                <div class="form-check">
+                                    @Html.RadioButtonFor(d => d.PromotionMode, PromotionMode.Manual, new { name = "PromotionMode", @checked = Model.PromotionMode == PromotionMode.Manual, id= "PromotionMode_Manual"})
+                                    <label class="form-check-label" for="PromotionMode_Manual">
+                                        @Resource.Promotion_Manual
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    @Html.RadioButtonFor(d => d.PromotionMode, PromotionMode.Period, new { name = "PromotionMode", @checked = Model.PromotionMode == PromotionMode.Period, id= "PromotionMode_Period" })
+                                    <label class="form-check-label" for="PromotionMode_Period">
+                                        @Resource.Promotion_Period
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="row col-md-12"> @Html.ValidationMessageFor(d => d.PromotionMode) </p>
+                            <div id="period-mode" style="display: none">
+                                <div class="row col-md-12">
+                                    <div class="col-md-6">
+                                        @Resource.Promotion_From
+                                        <input type="tel" class="form-control" placeholder="@Resource.Promotion_From" name="From">
+                                    </div>
+                                    <div class="col-md-6">
+                                        @Resource.Promotion_To
+                                        <input type="tel" class="form-control" placeholder="@Resource.Promotion_To" name="To">
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Promotion_DiscountPercent</label>
+                            <input type="text" class="form-control" placeholder="@Resource.Promotion_DiscountPercent" name="DiscountPercent" value="@Model.DiscountPercent">
+                            @Html.ValidationMessageFor(d => d.DiscountPercent)
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBoxFor(d => d.IsActive, new { name = "IsActive", @checked = Model.IsActive })
+                                    @Resource.Promotion_IsActive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script>
+        $(document).ready(function(){
+            $("#period-mode input[type=tel]").datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+            $('[name=PromotionMode]').on('change', function(event){
+                if (event.target.value === 'Manual') {
+                    $('#period-mode').hide()
+                }
+                else {
+                     $('#period-mode').show()
+                }
+            })
+            $('[name=PromotionMode][checked=true]').trigger('change')
+        })
+    </script>
+}

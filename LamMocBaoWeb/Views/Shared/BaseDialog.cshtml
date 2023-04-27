@@ -1,0 +1,33 @@
+﻿@*<div class="container modal-dialog">
+    <main role="main">
+        @RenderBody()
+    </main>
+</div>*@
+@using LamMocBaoWeb.Resources;
+
+<div class="modal fade" id="main-modal" role="dialog">
+    <h5 class="modal-title"></h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @RenderBody()
+        </div>
+    </div>
+    <div class="button-group pull-right">
+        @if (ViewBag.IsCreate)
+        {
+            <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Create</button>
+        }
+        else if (!ViewBag.IsCreate)
+        {
+            <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+        }
+
+        <button class="btn btn-sm btn-danger" data-dismiss="modal">@Resource.Common_Close</button>
+    </div>
+</div>
+
+
+@*$('.modal-dialog .modal-content form')[0].submit()*@

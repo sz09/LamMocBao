@@ -1,0 +1,148 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<Shared.Models.NewsPaperPost>
+@inject IServiceConfig _config
+
+@{
+    ViewData["Title"] = @Resource.Label_NewsPaperPosts;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    #from-server-dom {
+        /* display: none; */
+        position: fixed;
+        top: 100px !important;
+        left: 30%;
+        width: 50%;
+    }
+</style>
+<link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+@using (Html.BeginForm("NewsPaperPostAdmin", "NewsPaperPost", FormMethod.Get, new { id = "newspaper-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block m-auto col-10 row">
+            <input id="searchNewsPaperPost" class="search-box form-control form-control-sm d-block"
+                   placeholder="@Resource.NewsPaperPost_Search_Placeholder"
+                   name="Search"
+                   value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+        <div class="actions col-2 text-right">
+             @Html.ActionLink(Resource.Common_Create, "NewsPaperPostAdminCreate", "NewsPaperPost", null, new  {
+                @class = "btn btn-info add__button__admin",
+            })
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="table-wrap table-responsive-lg">
+                <table class="table table__admin table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">
+                                @Resource.Label_NewsPaperPosts
+                            </th>
+                            <th style="width: 15%">
+                                @Resource.NewsPaperPost_ImagePreview
+                            </th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr id="content-@item.Id" class="hideContent">
+                                <td>
+                                    <div>
+                                        <a href="@item.Link" target="_blank">@item.Hint</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        @if(item.UploadedImage != null)
+                                        {
+                                            @Html.Raw(item.UploadedImage.UrlPreview.ToImage())
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a class="h5" href="@Url.Action("NewsPaperPostAdminEdit", "NewsPaperPost", new { id = item.Id})">
+                                            <i class="fas fa-edit"></i>
+                                        </a> |
+                                        <a class="h5" onclick="deleteNewsPaperPost('@item.Id', '@item.Hint')"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    function createNewsPaperPost() {
+        LoaderService.Show();
+        $.ajax({
+            url: 'bao-chi/create',
+            success: function (html, textstatus, jqxhr) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+    function editNewsPaperPost(id) {
+        LoaderService.Show();
+        $.ajax({
+            url: '/admin/bao-chi/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+
+    function deleteNewsPaperPost(id, name) {
+        function deleteFunc() {
+            LoaderService.Show();
+            $.ajax({
+                method: 'delete',
+                url: '/admin/bao-chi/delete/' + id
+            }).done(function() {
+                window.location.href = "@Url.Action("NewsPaperPostAdmin", "NewsPaperPost")";
+            });
+        }
+        DialogBox.Confirm(String.format('@Resource.Produuct_Delete_Confirm', name), deleteFunc, '@Resource.Buttons_Yes', '@Resource.Buttons_No');
+
+    }
+
+    function onSearch() {
+        $('#searchNewsPaperPost').submit();
+    }
+
+    function showMore(value) {
+        if ($(`#content-${value}`).hasClass('hideContent')) {
+            $(`#content-${value}`).removeClass("hideContent")
+            $(`#content-${value}`).addClass("showContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-down"></i>`);
+        } else {
+            $(`#content-${value}`).removeClass("showContent")
+            $(`#content-${value}`).addClass("hideContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-right"></i>`);
+        };
+    }
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/upload-image.js" asp-append-version="true"></script>

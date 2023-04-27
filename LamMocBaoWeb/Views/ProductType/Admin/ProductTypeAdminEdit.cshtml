@@ -1,0 +1,173 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.Services
+@using Shared.Utilities
+@model EditProductTypeViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_ProductTypes;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_ProductTypes)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @using (Html.BeginForm("ProductTypeAdminUpdate", "ProductType", null, FormMethod.Post))
+    {
+        <input type="hidden" class="form-control" placeholder="@Resource.ProductType_Name" name="Id" value="@Model.Id">
+        <input type="hidden" name="RemoveOldImages" />
+        <div class="main-dialog" id="main-modal" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Resource.ProductType_Update_ProductType</h5>
+                    <div class=" button-group pull-right">
+                        <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+                        @Html.ActionLink(@Resource.Common_Close, "ProductTypeAdmin", "ProductType", null, new {
+                            @class="btn btn-sm btn-danger"
+                        })
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="form-content">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.ProductType_Name</label>
+                                <input type="text" class="form-control" placeholder="@Resource.ProductType_Name" name="Name" value="@Model.Name">
+                                @Html.ValidationMessageFor(d => d.Name)
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.Label_Tags</label>
+                                <div class="col-md-12">
+                                    @if(ViewBag.Tags != null)
+                                    {
+                                        int index = 0;
+                                        var tags = (SelectList)ViewBag.Tags;
+                                        int count = tags.Count();
+                                        foreach (var item in tags)
+                                        {
+                                            <div class="row col-md-12 tag-row m-1" id="tag-@index">
+                                                <div class="form-check d-inline-block col-md-6">
+                                                    <input type="checkbox" class="form-check-input d-inline-block" name="TagIds[@index]" 
+                                                           value="@item.Value" id="@item.Value" @(Model.ProductTypeTagStrs.Contains(item.Value) ? "checked": "") />
+                                                    <label class="form-check-label d-inline-block" for="@item.Value"> @item.Text </label>
+                                                </div>
+                                                <div class="d-inline-block col-md-6">
+                                                    <div class="f-content d-inline-block @(@index == 0 ? "invisible": string.Empty)">
+                                                        <button type="button" class="btn btn-sm btn-outline-info up">
+                                                            <i class="fa-solid fa-chevron-up"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="f-content d-inline-block @(@index == count - 1 ? "invisible": string.Empty)">
+                                                        <button type="button" class="btn btn-sm btn-outline-info down">
+                                                            <i class="fa-solid fa-chevron-down"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            index++;
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label>@Resource.ProductType_SequenceNumber</label>
+                                <input type="number" step="1" min="1" max="@ViewBag.MaxSequenceNumber" class="form-control" placeholder="@Resource.ProductType_SequenceNumber" name="SequenceNumber" value="@Model.SequenceNumber">
+                                @Html.ValidationMessageFor(d => d.SequenceNumber)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<script type="text/javascript">
+    var __splitter = '@splitter';
+    $(document).ready(function() {
+        var _model = @editModel;
+        FormUtils.SetFormValue('editProductTypeAdmin', _model);
+        LoaderService.Register();
+        registerChangePosition();
+    });
+
+    function registerChangePosition() {
+        $('.tag-row button.down').on('click', function(event) {
+            var elems = $(event.target).parents('.tag-row');
+            moveDown(elems[0]);
+        })
+        $('.tag-row button.up').on('click', function(event) {
+            var elems = $(event.target).parents('.tag-row');
+            moveUp(elems[0]);
+        })
+    }
+
+    function moveDown(row) {
+        if (row) {
+            var currentItems = $('.tag-row');
+            var index = row.id.replace('tag-', '') * 1;
+            var fromItem = currentItems[index];
+            var toItem = currentItems[index + 1];
+            swapIdContent(fromItem, toItem);
+        }
+    }
+
+    function moveUp(row) {
+        if(row){
+            var currentItems = $('.tag-row');
+            var index = row.id.replace('tag-', '') * 1;
+            var fromItem = currentItems[index];
+            var toItem = currentItems[index - 1];
+            swapIdContent(fromItem, toItem);
+        }
+    }
+
+    function swapIdContent(from, to) {
+        if (from && to) {
+            var temp = {};
+            temp = to;
+            var inputTo = $(to).find('input');
+            var inputFrom = $(from).find('input');
+            var toValue = $(inputTo).val();
+            var toText = $(to).find('label').text();
+            var toChecked = $(inputTo).prop('checked');
+
+            inputTo.val(inputFrom.val());
+            inputFrom.val(toValue);
+            
+            $(to).find('label').text($(from).find('label').text());
+            $(from).find('label').text(toText);
+
+            
+            inputTo.prop('checked', inputFrom.prop('checked'));
+            inputFrom.prop('checked', toChecked);
+        }
+    }
+
+
+    function removeOldItem(item) {
+        var removeOldImages = $('[name=RemoveOldImages]');
+        var value = removeOldImages.val();
+        var images = value.split(__splitter).filter((item) => !!item);
+        images.push(item);
+        var imageStr = images.join(__splitter);
+        removeOldImages.val(imageStr);
+        $('#product-image-' + item).remove();
+    }
+</script>
+
+

@@ -1,0 +1,336 @@
+﻿@using LamMocBaoWeb.Resources
+@using System.Web.Optimization
+@using LamMocBaoWeb.Utilities
+@using Services.Services
+@using System.Web
+@using Shared.Utilities
+@inject IServiceConfig _config
+@{
+    ViewData["Title"] = @Resource.Label_Make_A_Appointment;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var selectedType = Context.Request.Query["selected"];
+}
+<div class="step-title">
+    <h4>Liên hệ</h4>
+</div>
+<div class="custom-backgound-makeAppoiment">
+    <img height="256" src="~/backgrounddatlich.jpg"/>
+</div>
+<div>
+    <div class="col-md-8 m-auto">
+        @using (Html.BeginForm("MakeAAppointment", "Appointment"))
+        {
+            <div class="custom-background-form">
+                <h4 class="color-text">ĐẶT LỊCH CÙNG VỚI LÂM MỘC BẢO</h4>
+                <div class="form-group row col-md-12 mt-1">
+                    <label for="full-name" class="color-text">@Resource.Label_InterestedInService</label>
+                    <select class="form-control custom-form" name="InterestedInService" required oninvalid="this.setCustomValidity('@Resource.Appointment_PleaseSelect_Interested_In_Service')" oninput="setCustomValidity('')">
+                        @foreach (var interestService in _config.InterestServices)
+                        {
+                            if (interestService.Key.Equals(selectedType))
+                            {
+                                <option value="@interestService.Key" selected>@interestService.Value</option>
+                            }
+                            else
+                            {
+                                <option value="@interestService.Key">@interestService.Value</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group row col-md-12">
+                    <label for="full-name" class="color-text">@Resource.Customer_FullName</label>
+                    <input type="text" class="form-control custom-form" id="full-name" name="FullName" placeholder="@Resource.Customer_Input_FullName_PlaceHolder"
+                           required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_FullName')" oninput="setCustomValidity('')">
+                </div>
+                <div class="form-group row mr-3">
+                    <div class="col-md-6 d-inline-block">
+                        <label for="phone-number" class="color-text">@Resource.Customer_PhoneNumber</label>
+                        <input type="tel" class="form-control custom-form" id="phone-number" name="PhoneNumber" placeholder="@Resource.Customer_Input_PhoneNumber_PlaceHolder"
+                               required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_PhoneNumber')" oninput="setCustomValidity('')">
+                    </div>
+                    <div class="col-md-6 d-inline-block">
+                        <label for="email" class="color-text">@Resource.Customer_Email</label>
+                        <input type="email" class="form-control custom-form" id="email" name="Email" placeholder="@Resource.Customer_Input_Email_PlaceHolder"
+                               required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Email')" oninput="setCustomValidity('')">
+                    </div>
+                </div>
+                <div class="form-group row col-md-12 mr-3">
+                    <label class="row col-md-12 d-block color-text" for="phone-number">@Resource.Customer_Birthday</label>
+                    <div class="row col-md-12 birth-day-type-options">
+                        <div class="form-check">
+                            <input class="form-check-input custom-form" type="radio" name="BirthDayType" value="LunarCalendar" id="LunarCalendar">
+                            <label class="form-check-label color-text" for="LunarCalendar">
+                                @Resource.Customer_Birthday_LunarCalendar
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input custom-form" type="radio" name="BirthDayType" value="SolarCalendar" id="SolarCalendar" checked>
+                            <label class="form-check-label color-text" for="SolarCalendar">
+                                @Resource.Customer_Birthday_SolarCalendar
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row col-md-12 d-inline-block">
+                        <input type="tel" class="form-control d-inline-block col-md-3 custom-form" id="customer-date"
+                                   name="BirthDayDate" placeholder="DD/MM/YYYY" >
+                      @*  <input type="tel" class="form-control d-inline-block col-md-3 custom-form" id="customer-lunar-date"
+                               name="BirthDayDate" placeholder="DD/MM/YYYY">*@
+                        <span class="hour d-inline-block color-text">@Resource.Customer_Birday_Hour</span>
+                        <input type="tel" class="form-control col-md-2 d-inline-block custom-form" id="time" name="BirthDayTime" placeholder="HH:MM">
+                    </div>
+                </div>
+
+                <div class="form-group row address">
+                    <div class="row col-md-12">
+                        <div class="col-md-6">
+                            <label for="phone-number" class="color-text">@Resource.Customer_Address_Province</label>
+                            <select name="Province" class="w-100 form-control custom-form" id="city" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Province')" oninput="setCustomValidity('')">
+                                <option value="">@Resource.Customer_Address_Province</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone-number" class="color-text">@Resource.Customer_Address_District</label>
+                            <select name="District" class="w-100 form-control custom-form" id="district" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_District')" oninput="setCustomValidity('')">
+                                <option value="">@Resource.Customer_Address_District</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row col-md-12">
+                        <div class="col-md-6">
+                            <label for="phone-number" class="color-text">@Resource.Customer_Address_Ward</label>
+                            <select name="Ward" class="w-100  form-control custom-form" id="ward" required oninvalid="this.setCustomValidity('@Resource.Order_Address_Please_Input_Ward')" oninput="setCustomValidity('')">
+                                <option value="">@Resource.Customer_Address_Ward</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone-number" class="color-text">@Resource.Customer_Address_NumberAndStreet</label>
+                            <input type="text" class="form-control custom-form" id="phone-number" name="NumberAndStreet" placeholder="@Resource.Customer_Address_NumberAndStreet">
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-md-12">
+                    <label for="phone-number" class="color-text">@Resource.Appointment_Note</label>
+                    <textarea class="form-control custom-form" name="Note" rows="7"></textarea>
+
+                </div>
+                <div class="row col-md-12">
+                    <div class="f-content m-auto">
+                        <button type="submit" class="btn btn-sm lmb-btn title" style="text-transform: unset">@Resource.Appointment_Submit</button>
+                    </div>
+                </div>
+
+                <div id="lmb-calendar"></div>
+
+            </div>
+        }
+
+
+    </div>
+    <div class="col-md-8 m-auto">
+        <div class="custom-background-form mt-3">
+            <h4 class="color-text">HỘI SƯU TẦM BẢO VẬT LÂM MỘC BẢO</h4>
+            <div class="form-group col-md-12 mt-1">
+                <div>
+                    <label class="color-text">Địa chỉ:</label>
+                    <span>@_config.ContactInfos.ContactAddress</span>
+                </div>
+                <div>
+                    <label class="color-text">Giờ mở cửa:</label>
+                    <span>@_config.ContactInfos.WorkingTime</span>
+                </div>
+                <div>
+                    <label class="color-text">Facebook:</label>
+                    <a href="@_config.ContactInfos.Facebook" target="_blank">@_config.ContactInfos.FacebookName</a>
+                </div>
+                <div>
+                    <label class="color-text">Hotline/Zalo:</label>
+                    <span>@Html.Raw(HttpUtility.HtmlDecode(@_config.ContactInfos.ContactPhoneNumbers.ToTel())) </span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section PageScripts {
+    <script>
+    function minTwoDigits(n) {
+      return (n < 10 ? '0' : '') + n;
+    }
+
+    function isDefined(n) {
+        return !!n && typeof n !== 'undefined';
+    }
+    function makeHour(x1, x2) {
+        var hour;
+        var n1 = parseInt(x1), n2 = parseInt(x2);
+        if ((n1 == 0 || n1 == 1) || (n1 == 2 && n2 <= 3)) { // Wait for second number
+            if (n2) {
+                var n2 = parseInt(n2);
+                if (n2 >= 0 && n2 <= 9) {
+                    hour = n1 * 10 + n2;
+                }
+            }
+        }
+        else {
+            hour = n1;
+        }
+
+        return hour;
+    }
+
+    function makeMunite(x1, x2) {
+        var minute;
+        var n1 = parseInt(x1), n2 = parseInt(x2);
+        if (n1 >= 0 && n1 <= 5) { // Wait for second number
+            if (n1) {
+                var n2 = parseInt(n2);
+                if (n2 >= 0 && n2 <= 9) {
+                    minute = n1 * 10 + n2;
+                }
+            }
+        }
+        else {
+            minute = n1;
+        }
+
+        return minute;
+    }
+    //LunarCalendar
+    //SolarCalendar
+    $(document).ready(function () {
+        calendarOptions = {
+            targetCalendarId: 'customer-date',
+            mode: 'SolarCalendar'
+        };
+
+        $("#" + calendarOptions.targetCalendarId).click(function(){
+            viewSelectedMonth();
+        });
+
+        $('[type=radio][name=BirthDayType]').change(function(event) {
+            calendarOptions.mode = event.currentTarget.value;
+        })
+
+        $("[name=BirthDayTime]").on('blur', function(){
+            var val = $(this).val();
+            if (!val) {
+                return;
+            }
+            val = val.replace(/[^0-9\:]/g, '');
+            if (!val) {
+                return;
+            }
+
+            if (val.indexOf(':') > -1) {
+                var parts = val.split(':');
+                var hour = isDefined(parts[0]) ? parseInt(parts[0]): 0;
+                var m = parts[1]; 
+
+                if (hour > 23) {
+                    hour = 23;
+                }
+                else if (hour < 0) {
+                    hour = 0;
+                }
+                var minute = isDefined(m) ? parseInt(m) : 0;
+                if (isDefined(minute)) {
+                    if (minute > 59) {
+                        minute = 59;
+                    }
+                    else if (minute < 0) {
+                        minute = 0;
+                    }
+                }
+                var hourInStr = minTwoDigits(hour);
+                var minuteInStr = minTwoDigits(minute);
+                $(this).val(`${hourInStr}:${minuteInStr}`);
+            }
+            else {
+                var parts = [val.charAt(0), val.charAt(1), val.charAt(2), val.charAt(3)];
+                var hour = makeHour(parts[0], parts[1]), minute;
+                if (hour >= 10 && hour <= 23) {
+                    minute = makeMunite(parts[2], parts[3]);
+                }
+                else {
+                    minute = makeMunite(parts[1], parts[2]);
+                }
+
+                if(isDefined(hour) && isDefined(minute)){
+                    $(this).val(`${minTwoDigits(hour)}:${minTwoDigits(minute)}`);
+                }
+            }
+        });
+    });
+
+    var citis = document.getElementById("city");
+    var districts = document.getElementById("district");
+    var wards = document.getElementById("ward");
+    var Parameter = {
+        url: '/lib/vn-address.json',
+        method: "GET",
+        responseType: "application/json",
+    };
+    var promise = axios(Parameter);
+    promise.then(function (result) {
+        renderCity(result.data);
+    });
+
+    function renderCity(data) {
+        for (const x of data) {
+            citis.options[citis.options.length] = new Option(x.Name, x.Id);
+        }
+        citis.onchange = function () {
+            district.length = 1;
+            ward.length = 1;
+            if (this.value != "") {
+                const result = data.filter(n => n.Id === this.value);
+
+                for (const k of result[0].Districts) {
+                    district.options[district.options.length] = new Option(k.Name, k.Id);
+                }
+            }
+        };
+        district.onchange = function () {
+            ward.length = 1;
+            const dataCity = data.filter((n) => n.Id === citis.value);
+            if (this.value != "") {
+                const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                for (const w of dataWards) {
+                    wards.options[wards.options.length] = new Option(w.Name, w.Id);
+                }
+            }
+        };
+    }
+    function viewSelectedMonth() {
+        setOutputSize("normal");
+
+        if(window.scrollY <= 230){
+            $('#lmb-calendar').addClass("open-calendar-top");
+            $('#lmb-calendar').removeClass("open-calendar-bottom");
+
+        }
+        else{
+            $('#lmb-calendar').addClass("open-calendar-bottom");
+            $('#lmb-calendar').removeClass("open-calendar-top");
+        }
+    }
+
+    $(document).click(function (e) {
+        if ((e.target.id == calendarOptions.targetCalendarId) || (e.target.className == "fa fa-chevron-right") || (e.target.className == "fa fa-chevron-left")) {
+            var s = printSelectedMonth();
+            $('#lmb-calendar').html(s);
+
+            $('#lmb-calendar').removeClass("d-none");
+            $('#lmb-calendar').addClass("d-block");
+        } else{
+            $('#lmb-calendar').removeClass("d-block");
+            $('#lmb-calendar').addClass("d-none");
+        }
+    });
+</script>
+    <script type="text/javascript" src="~/js/lunar-calendar.js"></script>
+}

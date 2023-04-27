@@ -1,0 +1,18 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using Services.Services
+@inject IServiceConfig _config
+@{
+    ViewData["Title"] = @Resource.Customer_ThankYou;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="col-md-12 color-text">
+    <div class="col-md-6 make-a-appointment-success-group m-auto">
+        <div class="f-content m-auto pt-5 header text-uppercase w-f-content">
+            <label class="f-content">@Resource.Appointment_ThankYou_To_Make_A_Appointment</label>
+        </div>
+        <div class="f-content m-auto mt-3">
+            <label>@Html.Raw(string.Format(Resource.Appointment_We_Will_ContactYouASAP, _config.ContactInfos.ContactPhoneNumbers.ToTel()))</label>
+        </div>
+    </div>
+</div>

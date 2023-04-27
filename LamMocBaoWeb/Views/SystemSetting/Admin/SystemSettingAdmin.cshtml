@@ -1,0 +1,220 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model EditSystemSettingViewModel
+@inject IServiceConfig _config
+
+@{
+    ViewData["Title"] = @Resource.Label_SystemSettings;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@using (Html.BeginForm("SystemSettingAdmin", "SystemSetting", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.Label_SystemSettings</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Update
+                    </button>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_Email</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_Email" name="Email" value="@Model.Email">
+                                @Html.ValidationMessageFor(d => d.Email)
+                            </div>
+                        </div>
+                        @*<div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_PhoneNumber</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_PhoneNumber" name="PhoneNumber" value="@Model.PhoneNumber">
+                                @Html.ValidationMessageFor(d => d.PhoneNumber)
+                            </div>
+                        </div>*@
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_ContactPhoneNumbers</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_ContactPhoneNumbers" name="ContactPhoneNumbers" value="@Model.ContactPhoneNumbers">
+                                @Html.ValidationMessageFor(d => d.ContactPhoneNumbers)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_WorkingTime</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_WorkingTime" name="WorkingTime" value="@Model.WorkingTime">
+                                @Html.ValidationMessageFor(d => d.WorkingTime)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_ContactAddress</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_ContactAddress" name="ContactAddress" value="@Model.ContactAddress">
+                                @Html.ValidationMessageFor(d => d.ContactAddress)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_Facebook</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_Facebook" name="Facebook" value="@Model.Facebook">
+                                @Html.ValidationMessageFor(d => d.Facebook)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_Youtube</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_Youtube" name="Youtube" value="@Model.Youtube">
+                                @Html.ValidationMessageFor(d => d.Youtube)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_Instagram</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_Instagram" name="Instagram" value="@Model.Instagram">
+                                @Html.ValidationMessageFor(d => d.Instagram)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_GoogleMapFrameUrl</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_GoogleMapFrameUrl" name="GoogleMapFrameUrl" value="@Model.GoogleMapFrameUrl">
+                                @Html.ValidationMessageFor(d => d.GoogleMapFrameUrl)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_BankName</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_BankName" name="BankName" value="@Model.BankName">
+                                @Html.ValidationMessageFor(d => d.BankName)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_BankAccount</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_BankAccount" name="BankAccount" value="@Model.BankAccount">
+                                @Html.ValidationMessageFor(d => d.BankAccount)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_CardHolderName</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_CardHolderName" name="CardHolderName" value="@Model.CardHolderName">
+                                @Html.ValidationMessageFor(d => d.CardHolderName)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12 ">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_NumberOfHighlightItems</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_NumberOfHighlightItems" name="NumberOfHighlightItems" value="@Model.NumberOfHighlightItems">
+                                @Html.ValidationMessageFor(d => d.NumberOfHighlightItems)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12 ">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_HighlightItemsInDays</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_HighlightItemsInDays" name="HighlightItemsInDays" value="@Model.HighlightItemsInDays">
+                                @Html.ValidationMessageFor(d => d.HighlightItemsInDays)
+                            </div>
+                        </div>
+                    </div>
+
+                   @* <div class="col-md-12 ">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_MomoPaymentPhoneNumber</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_MomoPaymentPhoneNumber" name="MomoPaymentPhoneNumber" value="@Model.MomoPaymentPhoneNumber">
+                                @Html.ValidationMessageFor(d => d.MomoPaymentPhoneNumber)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_MomoPaymentCardHolder</label>
+                                <input type="text" class="form-control" placeholder="@Resource.SystemSetting_MomoPaymentCardHolder" name="MomoPaymentCardHolder" value="@Model.MomoPaymentCardHolder">
+                                @Html.ValidationMessageFor(d => d.MomoPaymentCardHolder)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.SystemSetting_MomoPaymentQRImage</label>
+                                <input type="file" class="custom-file-input" name="Files" id="customFile" accept="images/*">
+                                <label class="custom-file-label" for="customFile">@Resource.SystemSetting_Select_Images</label>
+                                @if (!string.IsNullOrWhiteSpace(Model.MomoPaymentQRImage))
+                                {
+                                    <img id="MomoPaymentQRImage" src="@Model.MomoPaymentQRImage" />
+                                }
+                                else
+                                {
+                                    <img id="MomoPaymentQRImage" src=""/>
+                                }
+                            </div>
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function() {
+        registerImageChangeEvent();
+    });
+
+    var uploadTimer;
+    function registerImageChangeEvent() {
+        $('input.custom-file-input').on('change', function(event) {
+            if (uploadTimer) {
+                clearTimeout(uploadTimer);
+            }
+            uploadTimer = setTimeout(() => {
+                uploadFile(event);
+            }, 1000)
+            event.stopPropagation();
+        });
+    }
+    
+    function uploadFile(event) {
+        var files = event.target.files;
+        var data = new FormData();
+        if(files.length){
+            data.append(files[0].name, files[0]);
+        }
+
+        LoaderService.Show();
+        $.ajax({
+            url: 'system-setting/upload-momo-qr',
+            method: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (uploaded, textstatus, jqxhr) {
+                if(!uploaded){
+                    return;
+                }
+                
+                $('#MomoPaymentQRImage').attr('src', uploaded.Url);
+
+                event.target.value = '';
+                LoaderService.Hide();
+            }
+        });
+    }
+</script>

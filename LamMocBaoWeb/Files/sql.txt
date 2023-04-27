@@ -1,0 +1,5 @@
+﻿CREATE INDEX Product_CreatedAt ON Products (CreatedAt)
+CREATE INDEX Product_SoldNumberCount ON Products (SoldNumberCount)
+CREATE INDEX Product_SellingPrice ON Products (SellingPrice)
+CREATE INDEX Product_ProductTypeId ON Products (ProductTypeId)
+CREATE INDEX Product_CategoryId ON Products ([CategoryId])

@@ -1,0 +1,48 @@
+﻿using Services.Caching;
+using Services.DbContexts;
+using Services.Services.Interfaces;
+using Shared.Models;
+using Shared.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Services.Services
+{
+    public class SizeService : Service<Size>, IService<Size>, ISizeService
+    {
+        public SizeService(IDbContext dbContext, InMemoryCache _cache, IEnumerable<ICachingLoader> cachingLoaders): base(dbContext, _cache, cachingLoaders) { }
+
+        public async Task<List<IdLabel>> GetComboboxListAsync()
+        {
+            var query = DbSet.AsQueryable().Where(d => !d.IsDeleted);
+            return query.ToList().Select(d => new IdLabel
+            {
+                Id = d.Id,
+                Label = $"{d.Number} {d.Unit}"  
+            }).ToList();
+        }
+
+        public new SearchResult<Size> Search(SearchQuery<Size> searchQuery, EagerLoadings eagerLoadings = null)
+        {
+            if (searchQuery == null)
+            {
+                EnsureDefault(searchQuery);
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery.Search))
+            {
+                searchQuery.SearchFunc = (entity) => entity.Unit.Contains(searchQuery.Search, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return base.Search(searchQuery, eagerLoadings);
+        }
+
+        public async Task<List<Size>> GetSizesAsync(List<Guid> ids)
+        {
+            return DbSet.AsQueryable().Where(d => !d.IsDeleted && ids.Contains(d.Id))
+                        .ToList();
+        }
+    }
+}

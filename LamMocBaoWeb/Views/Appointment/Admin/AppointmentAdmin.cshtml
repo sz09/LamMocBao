@@ -1,0 +1,134 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<Shared.Models.Appointment>
+@inject IServiceConfig _config
+
+@{
+    ViewData["Title"] = @Resource.Label_Appointments;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    #from-server-dom {
+        /* display: none; */
+        position: fixed;
+        top: 100px !important;
+        left: 30%;
+        width: 50%;
+    }
+</style>
+<link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+@using (Html.BeginForm("AppointmentAdmin", "Appointment", FormMethod.Get, new { id = "product-type-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block ml-1 col-10 row">
+            <input id="searchAppointment" class="search-box form-control form-control-sm d-block"
+                   placeholder="@Resource.Appointment_Search_Placeholder"
+                   name="Search"
+                   value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="table-wrap table-responsive-lg">
+                <table class="table table__admin table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">
+                                @Resource.Appointment_Customer_Name
+                            </th>
+                            <th style="width: 15%">
+                                @Resource.Appointment_PleaseSelect_Interested_In_Service
+                            </th>
+                            <th style="width: 65%">
+                                @Resource.Appointment_Customer_Contact_Infos
+                            </th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr id="content-@item.Id">
+                                <td>
+                                    <div>
+                                       @item.FullName
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                       @item.FullName
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        @Html.Raw(item.GetCustomerContactInfos())
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a class="h5" href="@Url.Action("AppointmentAdminView", "Appointment", new { id = item.Id})">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script type="text/javascript">
+    function createAppointment() {
+        LoaderService.Show();
+        $.ajax({
+            url: 'kich-co/create',
+            success: function (html, textstatus, jqxhr) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+    function editAppointment(id) {
+        LoaderService.Show();
+        $.ajax({
+            url: '/admin/kich-co/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+
+    function onSearch() {
+        $('#searchAppointment').submit();
+    }
+
+    function showMore(value) {
+        if ($(`#content-${value}`).hasClass('hideContent')) {
+            $(`#content-${value}`).removeClass("hideContent")
+            $(`#content-${value}`).addClass("showContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-down"></i>`);
+        } else {
+            $(`#content-${value}`).removeClass("showContent")
+            $(`#content-${value}`).addClass("hideContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-right"></i>`);
+        };
+    }
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/upload-image.js" asp-append-version="true"></script>

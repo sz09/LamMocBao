@@ -1,0 +1,98 @@
+﻿@using LamMocBaoWeb.Resources
+@using System.Web
+@model LamMocBaoWeb.ViewModels.CustomerDesiringViewModel
+
+@{
+    ViewData["Title"] = "View";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    .main-content .col-md-2::after {
+        content: ':'
+    }
+</style>
+<div>
+    <h4>Sản phẩm tư vấn: </h4>
+    <hr />
+    <dl class="row" style="line-height:2em">
+        <dt class="col-md-2">
+            <span>
+                @Resource.Customer_Name
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.CustomerName
+        </dd>
+        <dt class="col-md-2">
+            <span>
+                @Resource.Customer_Phone
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.CustomerPhoneNumber
+        </dd>
+        <dt class="col-md-2">
+            <span>
+                @Resource.Customer_Email
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.CustomerEmail
+        </dd>
+        <dt class="col-md-2">
+            <span>
+                @Resource.Customer_Address
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.CustomerAddress
+        </dd>
+        <dt class="col-md-2">
+            <span>
+                @Resource.Customer_Birthday
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.Birthday?.ToShortDateString()
+        </dd>
+        <dt class="col-md-2">
+            <span>
+                @Resource.Product_CreatedAt
+            </span>
+        </dt>
+        <dd class="col-md-10">
+            @Model.CreatedAt.ToShortDateString() @Model.CreatedAt.ToString("hh:mm")
+        </dd>
+        <dt class="col-md-2">
+            <span>@Resource.Product_InterestedIn</span>
+        </dt>
+        <dd class="col-md-10">
+            @foreach (var item in Model.CustomerPrefereds.Select((value, index) => new { index, value }))
+            {
+                <a  href="#" class="link-primary" onclick="viewProduct('@item.value.PreferedProductId')">@item.value.PreferedProduct.Name</a>
+                if (item.index != (Model.CustomerPrefereds.Count -1 ))
+                {
+                    <span>,</span>
+                }
+                else{
+                    <span>.</span>
+                }
+            }
+        </dd>
+       
+    </dl>
+</div>
+           
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+        
+    function viewProduct(id) {
+        $.ajax({
+            url: '/admin/san-pham/view/' + id,
+            //url: '/admin/san-pham/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+            }
+        });
+    }
+</script>

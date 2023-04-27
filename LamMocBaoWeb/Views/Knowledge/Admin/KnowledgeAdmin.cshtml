@@ -1,0 +1,182 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<Shared.Models.Knowledge>
+@inject IServiceConfig _config
+
+@{
+    var hightLightItemIds = ViewBag.HighlightItemIds as List<Guid>;
+    var publishedKnowledgeIds = ViewBag.PublishedKnowledgeIds as Dictionary<Guid, Guid?>;
+    ViewData["Title"] = @Resource.Label_Knowledges;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    #from-server-dom {
+        /* display: none; */
+        position: fixed;
+        top: 100px !important;
+        left: 30%;
+        width: 50%;
+    }
+</style>
+<link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+@using (Html.BeginForm("KnowledgeAdmin", "Knowledge", FormMethod.Get, new { id = "newspaper-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block m-auto col-10 row">
+            <input id="searchKnowledge" class="search-box form-control form-control-sm d-block"
+                   placeholder="@Resource.Knowledge_Search_Placeholder"
+                   name="Search"
+                   value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+        <div class="actions col-2 text-right">
+             @Html.ActionLink(Resource.Common_Create, "KnowledgeAdminCreate", "Knowledge", null, new  {
+                @class = "btn btn-info add__button__admin",
+            })
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="table-wrap table-responsive-lg">
+                <table class="table table__admin table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">
+                                @Resource.Knowledge_Name
+                            </th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr id="content-@item.Id" class="hideContent">
+                                <td>
+                                    <div>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a class="h5" href="@Url.ActionLink("KnowledgeAdminEdit", "Knowledge", new { id = item.Id })">
+                                            <i class="fas fa-edit"></i>
+                                        </a> |
+                                        <a class="h5" href="@Url.ActionLink("PreviewKnowledge", "Knowledge", new { id = item.Id })" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a> |
+                                        <a class="h5" name="publish-knowledge" data-id="@item.Id">
+                                           <i class="fas fa-upload"></i>
+                                        </a> |
+                                        @if(publishedKnowledgeIds.ContainsKey(item.Id)){
+                                            <a class="h5" onclick="hightlightKnowledge('@publishedKnowledgeIds[item.Id]', '@item.Id')">
+                                                <i class="fa fa-star @(publishedKnowledgeIds[item.Id].HasValue && hightLightItemIds.Contains(publishedKnowledgeIds[item.Id].Value) ? "has-highlight": "") "></i>         
+                                            </a>
+                                        }
+                                        <a class="h5" onclick="deleteKnowledge('@item.Id', '@item.Name')"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('[name=publish-knowledge]').click(function(event) {
+            var id = $(event.currentTarget).data('id');
+            publish(id);
+        })
+    })
+    function createKnowledge() {
+        LoaderService.Show();
+        $.ajax({
+            url: 'kien-thuc/create',
+            success: function (html, textstatus, jqxhr) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+    function editKnowledge(id) {
+        LoaderService.Show();
+        $.ajax({
+            url: '/admin/kien-thuc/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+    
+    function publish(id) {
+        LoaderService.Show();
+         $.ajax({
+                url: '@Url.ActionLink("Publish", "Knowledge")?id=' + id,
+                method: 'POST',
+                processData: false,
+                contentType: false,
+                success: function (uploaded, textstatus, jqxhr) {
+                    window.location.reload();
+                    LoaderService.Hide();
+                }
+            });
+    }
+
+    function deleteKnowledge(id, name) {
+        function deleteFunc() {
+            LoaderService.Show();
+            $.ajax({
+                method: 'delete',
+                url: '/admin/kien-thuc/delete/' + id
+            }).done(function() {
+                window.location.href = "@Url.Action("KnowledgeAdmin", "Knowledge")";
+            });
+            LoaderService.Hide();
+        }
+        DialogBox.Confirm(String.format('@Resource.Produuct_Delete_Confirm', name), deleteFunc, '@Resource.Buttons_Yes', '@Resource.Buttons_No');
+
+    }
+
+    function onSearch() {
+        $('#searchKnowledge').submit();
+    }
+
+    function showMore(value) {
+        if ($(`#content-${value}`).hasClass('hideContent')) {
+            $(`#content-${value}`).removeClass("hideContent")
+            $(`#content-${value}`).addClass("showContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-down"></i>`);
+        } else {
+            $(`#content-${value}`).removeClass("showContent")
+            $(`#content-${value}`).addClass("hideContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-right"></i>`);
+        };
+    }
+        function hightlightKnowledge(id, currentId){
+            LoaderService.Show();
+             $.ajax({
+                    method: 'POST',
+                    url: '@Url.Action("AutoHightlight", "Highlight")?entityId=' + id + '&entityType=2'
+                }).done(function() {
+                    debugger
+                    $('#content-' + currentId + ' .fa-star').toggleClass('has-highlight');
+                    LoaderService.Hide();
+                });
+        }
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/upload-image.js" asp-append-version="true"></script>

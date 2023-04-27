@@ -1,0 +1,183 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<ProductStock>
+
+@{
+    ViewData["Title"] = @Resource.Label_Stocks;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    #paginate-stock{
+        position: relative !important;
+    }
+    .form-content {
+        overflow-x: hidden;
+    }
+</style>
+<link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+@using (Html.BeginForm("StockAdmin", "Stock", FormMethod.Get, new { id = "product-type-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block m-auto col-10 row">
+            <input id="searchStock" class="search-box form-control form-control-sm d-block"
+               placeholder="@Resource.Product_Search_Placeholder"
+               name="Search"
+               value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+        <div class="actions col-2">
+        </div>
+    </div>
+    <div id="paginate-stock">@Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))</div> 
+}
+
+<div class="main-dialog" id="main-modal" role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">@Resource.Label_Stocks</h5>
+        </div>
+        <div class="main-content">
+            <div class="form-content">
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <div class="table-wrap table-responsive-lg">
+                            @foreach (var productStock in Model.Data)
+                            {
+                                <div class="product-size-stock">
+                                    <label>
+                                        @productStock.ProductName 
+                                        <a class="nav-link d-inline-block" href="@Url.ActionLink("ProductAdminEdit", "Product", new { id = @productStock.ProductId})" target="_blank"> 
+                                            <i class="fa-solid fa-link"></i>
+                                        </a>
+                                    </label>
+                                    @if(productStock.ProductSizeStocks.Any())
+                                    {
+                                        <div class="row col-md-12 size-stock ml-2 mb-1">
+                                            <div class="col-md-3">
+                                                <label>Kích cỡ</label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Số lượng còn lại</label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Nhập</label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Xuất</label>
+                                            </div>
+                                            @foreach (var productSizeStock in productStock.ProductSizeStocks)
+                                            {
+                                                <div class="row col-md-12 mb-1">
+                                                    <div class="col-md-3 d-flex">
+                                                        <input class="form-control" disabled value="@productSizeStock.DisplayUnit" />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <input class="form-control" id="size-@productStock.ProductId-@productSizeStock.ProductSizeId" type="number" disabled value="@productSizeStock.CurrentQuantity" />
+                                                    </div>
+                                                    <div class="col-md-3 d-flex">
+                                                        <input class="form-control" type="number" name="import" min="0" value="0" data-product-id="@productStock.ProductId" data-product-size="@productSizeStock.ProductSizeId" />
+                                                        <button type="button" class="btn btn-outline-success ml-1" onclick="onImport('@productStock.ProductId', '@productSizeStock.ProductSizeId')">@Resource.Product_Import_Stock</button>
+                                                    </div>
+                                                    <div class="col-md-3 d-flex">
+                                                        <input class="form-control" @(productSizeStock.CurrentQuantity == 0 ? "disabled": "") value="0" type="number" name="export" min="0" max="@productSizeStock.CurrentQuantity" data-product-id="@productStock.ProductId" data-product-size="@productSizeStock.ProductSizeId" />
+                                                        <button type="button" @(productSizeStock.CurrentQuantity == 0 ? "disabled": "") class="btn btn-outline-danger ml-1" name="export" data-product-id="@productStock.ProductId" data-product-size="@productSizeStock.ProductSizeId" onclick="onExport('@productStock.ProductId', '@productSizeStock.ProductSizeId')">@Resource.Product_Export_Stock</button>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('[name=import]').keypress(function(e) {
+            if (e.keyCode == 13) {
+                var productId = $(e.currentTarget).data('product-id');
+                var productSizeId = $(e.currentTarget).data('product-size');
+                onImport(productId, productSizeId);
+            }
+        });
+        $('[name=export]').keypress(function(e) {
+            if (e.keyCode == 13) {
+                var productId = $(e.currentTarget).data('product-id');
+                var productSizeId = $(e.currentTarget).data('product-size');
+                onExport(productId, productSizeId);
+            }
+            else {
+                setTimeout(function() {
+                    var productId = $(e.currentTarget).data('product-id');
+                    var productSizeId = $(e.currentTarget).data('product-size');
+                    var exportElem = $(`[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`);
+                    var maxValue = $(exportElem).attr('max') * 1;
+                    if($(exportElem).val() * 1 > maxValue) { 
+                        $(exportElem).val(maxValue);
+                    }
+                }, 100)
+            }
+        });
+
+        $('#paginate-stock').css('top', $('#main-modal').height() + 10 + 'px');
+    });
+    function onImport(productId, productSizeId) {
+        var value = $(`[name=import][data-product-id=${productId}][data-product-size=${productSizeId}]`).val();
+        if (value > 0) {
+            LoaderService.Show();
+            $.ajax({
+                method: 'post',
+                url: `@Url.ActionLink("Import", "Stock")?productId=${productId}&productSizeId=${productSizeId}&quantity=${value}`,
+                success: function(res) {
+                    var newValue = res.NewValue;
+                    $(`#size-${productId}-${productSizeId}`).val(newValue);
+                    makeSureDisableExport(productId, productSizeId, newValue);
+                    $(`input[name=import][data-product-id=${productId}][data-product-size=${productSizeId}]`).val(0);
+                    LoaderService.Hide();
+                }
+            });
+        }
+    }
+
+    function onExport(productId, productSizeId) {
+        var value = $(`[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`).val();
+        if (value > 0) {
+            LoaderService.Show();
+            $.ajax({
+                method: 'post',
+                url: `@Url.ActionLink("Export", "Stock")?productId=${productId}&productSizeId=${productSizeId}&quantity=${value}`,
+                success: function(res) {
+                    var newValue = res.NewValue;
+                    $(`#size-${productId}-${productSizeId}`).val(newValue);
+                    makeSureDisableExport(productId, productSizeId, newValue);
+                    $(`input[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`).val(0);
+                    LoaderService.Hide();
+                }
+            });
+        }
+    }
+
+    function makeSureDisableExport(productId, productSizeId, quantity) {
+        $(`input[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`).attr('disabled', quantity == 0);
+        $(`button[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`).attr('disabled', quantity == 0);
+        $(`input[name=export][data-product-id=${productId}][data-product-size=${productSizeId}]`).attr('max', quantity);
+    }
+
+    function onSearch() {
+        $('#searchStock').submit();
+    }
+
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/upload-image.js" asp-append-version="true"></script>

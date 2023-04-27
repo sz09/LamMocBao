@@ -1,0 +1,189 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels.Cart
+@model CartViewModel
+
+@{
+    ViewData["Title"] = @Resource.Label_Carts;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (Model.ProductCarts.Any())
+{
+    <div class="carts">
+        <div class="group-direct-link mt-3" >
+            @await Html.PartialAsync("../Shared/OrderStatusDirectLink", CartStatus.OnCart)
+        </div>
+        <div class="carts-temp mt-2 col-md-7 d-inline-block  table-cart-mobile-screen">
+            <div class="row header">
+                <label class="col-md-1"></label>
+                <label class="col-md-3 col-8 color-text label-table">@Resource.Product_ProductName</label>
+                <label class="col-md-2 color-text label-table label-none">@Resource.Cart_Type</label>
+                <label class="col-md-2 color-text label-table label-none">@Resource.Product_SellingPrice</label>
+                <label class="col-md-2 col-4 color-text label-table ">@Resource.Product_Quantity</label>
+                <label class="col-md-2 color-text label-table label-none">@Resource.Product_Temp_Sum_Price</label>
+            </div>
+            <form asp-controller="Cart" asp-action="UpdateCartQuantity" data-ajax="true" data-ajax-method="GET" id="product_carts">
+                <div class="content">
+                    @foreach (var item in Model.ProductCarts.Select((item, index) => new { obj = item, index }))
+                    {
+                        <input type="hidden" name="models[@item.index].SizeId" value="@item.obj.SizeId"/>
+                        <input type="hidden" name="models[@item.index].Id" value="@item.obj.Id" />
+                        <div class="row product-cart-row">
+                            <div class="col-md-1 product-remove">
+                                    <button type="button" class="btn btn-xs btn-outline-light btn-delete-cart" id="@item.obj.Id" 
+                                    data-product-id="@item.obj.Id" 
+                                    data-size-id="@item.obj.SizeId" >
+                                        <i class="fa-sharp fa-solid fa-xmark"></i>
+                                    </button>
+                            </div>
+                            <div class="product-preview col-md-3 col-8">
+                                <div class="d-inline-block">
+                                    <img width="130" height="130" class="d-inline-block cart-preview-image" src="@item.obj.PreviewImage">
+                                    <span class="d-inline-block color-text">@item.obj.Name</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2 m-auto">
+                                <ul class="product-tags product-cart-type mb-0">
+                                    <li>@item.obj.SizeName</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-2 product-price-infos">
+                                <div class="color-text m-auto" name="models[@item.index].Price">@item.obj.Price.ToCultureCurrency()</div>
+                            </div>
+                            <div class="col-md-2 col-4 product-price-infos product-quantity">
+                                <input class="quantity width-input-mobile-screen" type="number" min="1" step="1" name="models[@item.index].Quantity" value="@item.obj.Quantity" />
+                            </div>
+                            <div class="col-md-2 product-price-infos product-total-price">
+                                <div class="color-text m-auto">@item.obj.TotalPrice.ToCultureCurrency()</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="btn-actions">
+                        <a href="@Url.Action("Index", "Product")" class="btn lmb-btn title">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            @Resource.Product_Back_Product_Page
+                        </a>
+                        <button type="submit" class="btn btn-outline-secondary lmb-btn color-text">@Resource.Product_Cart_UpdateCart</button>
+                </div>
+            </form>
+        </div>
+        <div class="carts-sum-temp mt-2 col-md-4 d-inline-block payment-infos table-cart-mobile-screen">
+            <div class="row header col-md-12">
+                <label class="color-text label-none">@Resource.Product_Carts_Sum</label>
+            </div>
+            <div class="main-infos">
+                <div class="row col-md-12 cal-temp-price">
+                    <div class="col-md-6 col-4 color-text">@Resource.Product_Temp_Sum_Price</div>
+                    <div class="col-md-6 col-8 color-text pull-right">@Model.SumPrice.ToCultureCurrency()</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="col-md-6 col-4 color-text">@Resource.Product_Delivery_Fee</div>
+                    <div class="col-md-6 col-8 color-text pull-right discount-fee-content">@Resource.Product_Delivery_Fee_Content</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="col-md-6 color-text">@Resource.Product_Promotion_Code</div>
+                    <div class="col-md-6 color-text pull-right">
+                        <input type="text" class="form-control promotion-code" />
+                    </div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6 color-text pull-right">
+                        <div id="promotion-discount-infos"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculated-price">
+                <div class="row col-md-12">
+                    <div class="col-md-6 col-6 color-text">@Resource.Product_CalculatedPrice_Total</div>
+                    <div class="col-md-6 col-6 color-text pull-right">
+                        <div class="color-text" id="calculated-price-total">@Model.SumPrice.ToCultureCurrency()</div>
+                    </div>
+                </div>
+            </div>
+            <div class="payment-box" style="width: 100%">
+                <div>
+                    <a class="btn paid-button lmb-btn" id="pay-btn" href="@Url.ActionLink("Index", "Order")">@Resource.Product_Cart_Pay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="carts m-5">
+        <div class="col-md-12 d-inline-block">
+            <div class="content color-text m-auto w-f-content">
+                <i>@Resource.Cart_Empty_Inform</i> 
+            </div>
+            <div class="btn-actions w-f-content">
+                <a href="@Url.Action("Index", "Product")" class="btn lmb-btn title">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    @Resource.Product_Back_Product_Page
+                </a>
+            </div>
+        </div>
+    </div>
+}
+@*<div class="suggestion-product">
+    @if (Model.SuggestionProduct != null)
+    {
+        @await Html.PartialAsync("../Product/Public/ByLinkName", Model.SuggestionProduct)
+    }
+</div>*@
+@section PageScripts {
+    <script>
+        var paymentLink = '@Url.ActionLink("Index", "Order")'
+        $(document).ready(function() {
+            $('.promotion-code').on('keypress', function(event) {
+                onPromotionEnter(event)
+            });
+            $('.btn-delete-cart').on('click', function(event) {
+                var productId = $(event.currentTarget).data('product-id');
+                var sizeId = $(event.currentTarget).data('size-id');
+                onRemoveCart(productId, sizeId);
+            });
+        });
+
+        function onPromotionEnter(event) {
+            if (event.code === 'Enter'){
+                var code = $(event.target).val();
+                if (code) {
+                    var url = `@Url.ActionLink("Check", "Promotion")?code=${code}`
+                    $.ajax({
+                        url: url,
+                        success: function(response, textstatus, jqxhr) {
+                            if (response.Success) {
+                                $('#promotion-discount-infos').text(response.Data.DiscountInfo);
+                                $('#calculated-price-total').text(response.Data.CalculatedPrice);
+                                $('#pay-btn').attr('href', paymentLink + `?code=${code}`)
+                            }
+                            else {
+                                $('#promotion-discount-infos').text(response.Data.ErrorMessage);
+                                $('#calculated-price-total').text('@Html.Raw(Model.SumPrice.ToCultureCurrency())');
+                                $('#pay-btn').attr('href', paymentLink)
+                            }
+                        }
+                    });
+                }
+                else {
+                    $('#promotion-discount-infos').text('');
+                    $('#pay-btn').attr('href', paymentLink)
+                }
+            }
+        }
+
+        function onRemoveCart(id,  sizeId) {
+            var url = `@Url.ActionLink("RemoveItem", "Cart")?id=${id}&sizeId=${sizeId}` 
+            $.ajax({
+                url: url,
+                method: 'delete',
+                success: function(response) {
+                    window.location.reload();
+                }
+            });
+        } 
+    </script>
+}

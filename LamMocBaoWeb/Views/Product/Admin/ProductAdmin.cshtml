@@ -1,0 +1,186 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<Shared.Models.Product>
+@inject IServiceConfig _config
+
+@{
+    var hightLightItemIds = ViewBag.HighlightItemIds as List<Guid>;
+    ViewData["Title"] = @Resource.Label_Products;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+    <style>
+        #from-server-dom {
+            /* display: none; */
+            position: fixed;
+            top: 100px !important;
+            left: 30%;
+            width: 50%;
+        }
+    </style>
+    <link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+    @using (Html.BeginForm("ProductAdmin", "Product", FormMethod.Get, new { id = "product-admin-form" }))
+{
+        <div class="row">
+            <div class="search-box-group d-block m-auto col-10 row">
+                <input id="searchProduct" class="search-box form-control form-control-sm d-block"
+                       placeholder="@Resource.Product_Search_Placeholder"
+                       name="Search"
+                       value="@ViewBag.SearchText">
+                <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+            <div class="actions col-2 text-right">
+                 @Html.ActionLink(Resource.Common_Create, "ProductAdminCreate", "Product", null, new  {
+                @class = "btn btn-info add__button__admin",
+            })
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <div class="table-wrap table-responsive-lg">
+                    <table class="table table__admin table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 15%">
+                                    @Resource.Product_Name
+                                </th>
+                                <th style="width: 20%">
+                                    @Resource.Product_PurchasingPrice
+                                </th>
+                                <th style="width: 20%">
+                                    @Resource.Product_SellingPrice
+                                </th>
+                                <th style="width: 25%">
+                                    @Resource.Product_Images
+                                </th>
+                                <th style="width: 15%">
+                                    @Resource.Label_ProductTypes
+                                </th>
+                                <th style="width: 10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Data)
+                        {
+                                <tr id="content-@item.Id" class="hideContent">
+                                    <td>
+                                        <div>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            @(item.PurchasingPrice?.ToCultureCurrency() ?? "")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            @(item.SellingPrice?.ToCultureCurrency() ?? "")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @Html.Raw(item.ProductImages.Select(d => d.UrlPreview).ToImages())
+                                    </td>
+                                    <td>
+                                        <div>
+                                            @item.ProductType?.Name
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <a class="h5" href="@Url.Action("ProductAdminEdit", "Product", new { id = item.Id})">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a class="h5" onclick="hightlightProduct('@item.Id')">
+                                                <i class="fa fa-star @(hightLightItemIds.Contains(item.Id) ? "has-highlight": "")"></i>
+                                            </a>
+                                            <a class="h5" onclick="deleteProduct('@item.Id', '@item.Name')"><i class="fas fa-trash"></i></a>
+                                            @*<button type="button" id="myBtn-@item.Id" class="btn btn-outline-secondary btn-sm border-0" onclick="showMore('@item.Id')"><i class="fa-solid fa-angle-right"></i></button>*@
+                                        </div>
+                                    </td>
+                                </tr>
+                        }
+                        </tbody>
+                    </table>
+                    @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+
+                </div>
+            </div>
+        </div>
+}
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        function createProduct() {
+            LoaderService.Show();
+            $.ajax({
+                url: 'san-pham/create',
+                success: function (html, textstatus, jqxhr) {
+                    DialogBox.Show(html);
+                    LoaderService.Hide();
+                }
+            });
+        }
+        function editProduct(id) {
+            LoaderService.Show();
+            $.ajax({
+                url: '/admin/san-pham/' + id,
+                success: function (html, textStatus, jqXHR) {
+                    DialogBox.Show(html);
+                    LoaderService.Hide();
+                }
+            });
+        }
+
+        function deleteProduct(id, name) {
+            function deleteFunc() {
+                LoaderService.Show();
+                $.ajax({
+                    method: 'delete',
+                    url: '/admin/san-pham/delete/' + id
+                }).done(function() {
+                    window.location.href = "@Url.Action("ProductAdmin", "Product")";
+                });
+                LoaderService.Hide();
+            }
+            DialogBox.Confirm(String.format('@Resource.Produuct_Delete_Confirm', name), deleteFunc, '@Resource.Buttons_Yes', '@Resource.Buttons_No');
+
+        }
+
+        function onSearch() {
+            $('#searchProduct').submit();
+        }
+
+        function showMore(value) {
+            if ($(`#content-${value}`).hasClass('hideContent')) {
+                $(`#content-${value}`).removeClass("hideContent")
+                $(`#content-${value}`).addClass("showContent");
+                $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-down"></i>`);
+            } else {
+                $(`#content-${value}`).removeClass("showContent")
+                $(`#content-${value}`).addClass("hideContent");
+                $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-right"></i>`);
+            };
+        }
+
+        function hightlightProduct(id){
+            LoaderService.Show();
+             $.ajax({
+                    method: 'POST',
+                    url: '@Url.Action("AutoHightlight", "Highlight")?entityId=' + id + '&entityType=1'
+                }).done(function() {
+                    $('#content-' + id + ' .fa-star').toggleClass('has-highlight');
+                    LoaderService.Hide();
+                });
+        }
+
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/upload-image.js" asp-append-version="true"></script>

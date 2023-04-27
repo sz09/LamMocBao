@@ -1,0 +1,53 @@
+﻿@using LamMocBaoWeb.Models.Users
+@using LamMocBaoWeb.Resources
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model UserCreateModel
+
+@{
+    ViewData["Title"] = @Resource.Label_User_Registers;
+    Layout = null;
+    ModelError error = null;
+    var keyCustomError = ViewData.ModelState.Keys.FirstOrDefault(d => d.StartsWith("Register_"));
+    if (keyCustomError != null)
+    {
+        error = ViewData.ModelState[keyCustomError].Errors.FirstOrDefault();
+    }
+}
+
+@using (Html.BeginForm("Register", "User", FormMethod.Post))
+{
+    <label class="row">@Resource.Register_Title_Create_Account</label>
+    <div class="">
+        <div class="col-md-12">
+            <div>
+                @if (error != null)
+                {
+                    <div class="form-group">
+                        <label class="label ">@error?.ErrorMessage</label>
+                    </div>
+                }
+                <div class="form-group">
+                    <label>@Resource.Register_Label_Username</label>
+                    @Html.TextBoxFor(d => d.Username, new { @class = "form-control" })
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="form-group">
+                    <label>@Resource.Register_Label_Email</label>
+                    @Html.TextBoxFor(d => d.Email, new { @class = "form-control", type = "email" })
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="form-group">
+                    <label>@Resource.Register_Label_Password</label>
+                    @Html.PasswordFor(d => d.Password, new { @class = "form-control", type = "password" })
+                </div>
+                <div class="form-group">
+                    <label>@Resource.Register_Label_RetypePassword</label>
+                    @Html.PasswordFor(d => d.RetypePassword, new { @class = "form-control", type = "password" })
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-black">@Resource.Register_Button_Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

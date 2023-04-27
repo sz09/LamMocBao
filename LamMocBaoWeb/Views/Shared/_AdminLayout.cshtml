@@ -1,0 +1,128 @@
+﻿@using LamMocBaoWeb.Utilities
+@using Services.Services
+@using Shared
+@inject IServiceConfig _config
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin</title>
+    <link rel="stylesheet" href="~/lib/jquery/css/jquery.modal.min.css.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/jquery/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="~/css/confirm-dialog.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+@{
+    var cookie = Context.Request.Cookies["user_token"];
+    var jwtSecurityToken = JwtUtilities.ReadJwtSecurityToken(cookie);
+    var username = jwtSecurityToken.Claims.FirstOrDefault(d => d.Type == Constants.Username_Key);
+}
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery-ui.js"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.modal.min.js"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@*<script type="text/javascript" src="/lib/font-awesome/js/all.js"></script>*@
+<script type="text/javascript" src="/js/jquery.leanModal.min.js"></script>
+<script type="text/javascript" src="/js/confirm-modal.js"></script>
+<script type="text/javascript" src="/js/site.js" asp-append-version="true"></script>
+<body>
+    <section class="top header">
+        <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top">
+            <div class="container-fluid">
+                
+                <a class="navbar-brand d-flex align-items-center" href="@Url.Action("ProductAdmin", "Product")">
+                    @*<h5>LÂM MỘC BẢO</h5>*@
+                </a>
+                <div class="d-flex">
+                    <span class="text-white admin__avt"><i class="fa-regular fa-user"></i>@username?.Value</span>
+                    <a class="ml-5 mt-1 text-white logout__button" onclick="location.href='@Url.Action("LogOff", "Auth")'"><i class="fa-solid fa-right-from-bracket"></i></a>
+                </div>
+
+
+            </div>
+        </nav>
+        <div>
+            <div class="top header">
+                <div class="top lmb-nav">
+                    <a class="navbar-brand d-flex align-items-center" href="@Url.Action("ProductAdmin", "Product")">
+                        @*<h5>LÂM MỘC BẢO</h5>*@ 
+                        <img src="/logoLBM.png" alt="top page" style="height: 60px !important; width: 70px !important; margin: 0px; margin-left: -1.5rem;">
+                    </a>
+                    @*<img src="/logoLBM.png" alt="top page">*@
+                </div>
+            </div>
+            <div id="admin-layout" class="d-flex">
+                <div id="menu" style="padding-left: initial;">
+                   @await Html.PartialAsync("../../Views/Admin/_Navigation") 
+                </div>
+                <div id="main-content" style="max-width: 95%;" class="admin-layout main-content">
+                    <div>
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="from-server-dom"></div>
+    <partial name="~/Views/Shared/_LoadingPage.cshtml" />
+    @RenderSection("Scripts", required: false)
+</body>
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                LoaderService.Show();
+            });
+            LoaderService.Hide();
+        });
+
+        var isCollapsedKey = "isCollapsed";
+        var localStorageIsCollapsed = getLocalStorage(isCollapsedKey);
+        if (localStorageIsCollapsed === undefined) {
+            setLocalStorage(isCollapsedKey, false);
+        }
+        toggleNavMenuAction(getLocalStorage(isCollapsedKey) == "true")
+        
+        function setLocalStorage(name, value) { 
+            localStorage.setItem(name, value);
+        }
+
+        function toggleNavMenu() {
+            var isCollapsedKey = "isCollapsed";
+            var localStorageIsCollapsed = getLocalStorage(isCollapsedKey);
+            setLocalStorage(isCollapsedKey, localStorageIsCollapsed == 'true' ? false: true)
+            localStorageIsCollapsed = getLocalStorage('isCollapsed');
+            toggleNavMenuAction(localStorageIsCollapsed === 'true');
+        }
+
+        function getLocalStorage(name) {
+            return localStorage.getItem(name);
+        }
+
+        function toggleNavMenuAction(isCollapsed){
+            if (isCollapsed) {
+                $('#admin-layout #menu').addClass("d-inline-block collapsed mr-2")
+                $('#admin-layout #main-content').addClass("col-md-12 d-inline-block");
+                
+                $('#admin-layout #menu').removeClass("col-md-2")
+                $('#admin-layout #main-content').removeClass("col-md-10");
+
+                $('#admin-layout #menu [class^=fa]').addClass("fa-xl");
+                $('#admin-layout #main-content>div').addClass("mr-1");
+            }
+            else {
+                $('#admin-layout #menu').addClass("col-md-2")
+                $('#admin-layout #main-content').addClass("col-md-10");
+
+                $('#admin-layout #menu').removeClass("d-inline-block collapsed mr-2")
+                $('#admin-layout #main-content').removeClass("col-md-12 d-inline-block");
+                
+                $('#admin-layout #menu [class^=fa]').removeClass("fa-xl");
+                $('#admin-layout #main-content>div').removeClass("mr-1");
+            }
+        }
+
+    </script>
+</html>

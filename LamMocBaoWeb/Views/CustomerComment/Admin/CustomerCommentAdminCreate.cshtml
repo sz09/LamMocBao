@@ -1,0 +1,107 @@
+﻿@using LamMocBaoWeb.Controllers
+@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@model CreateCustomerCommentModel
+@inject IServiceConfig _config 
+
+@{
+    ViewData["Title"] = @Resource.Label_CustomerComments;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var entityId = Model.Id;
+}
+@using (Html.BeginForm("CustomerCommentAdminCreate", "CustomerComment", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.CustomerComment_CreateNew_CustomerComment</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Create
+                    </button>
+                    @Html.ActionLink(@Resource.Common_Close, "CustomerCommentAdmin", "CustomerComment", null, new {
+                        @class="btn btn-sm btn-danger"
+                    })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.CustomerComment_Hint</label>
+                            <input type="text" class="form-control" placeholder="@Resource.CustomerComment_Hint" name="Hint" value="@Model.Hint">
+                            @Html.ValidationMessageFor(d => d.Hint)
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.CustomerComment_SequenceNumber</label>
+                            <input type="number" class="form-control" placeholder="@Resource.CustomerComment_SequenceNumber" name="SequenceNumber" value="@Model.SequenceNumber">
+                            @Html.ValidationMessageFor(d => d.SequenceNumber)
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <input type="hidden" id="UploadedImageId" name="UploadedImageId" />
+                            <label>@Resource.CustomerComment_ImagePreview</label>
+                            <input type="file" id="customFile" class="custom-file-input" name="UploadedImageId" accept="images/*">
+                            <label class="custom-file-label" for="customFile">@Resource.CustomerComment_Select_ImagePreview</label>
+                            <img id="ImagePreview" src="" class="img-preview"/>
+                            @Html.ValidationMessageFor(d => d.UploadedImageId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function() {
+        registerImageChangeEvent();
+    });
+
+    var uploadTimer;
+    function registerImageChangeEvent() {
+        $('input.custom-file-input').on('change', function(event) {
+            if (uploadTimer) {
+                clearTimeout(uploadTimer);
+            }
+            uploadTimer = setTimeout(() => {
+                uploadFile(event);
+            }, 1000)
+            event.stopPropagation();
+        });
+    }
+    
+    function uploadFile(event) {
+        var files = event.target.files;
+        var data = new FormData();
+        if(files.length){
+            data.append(files[0].name, files[0]);
+        }
+        data.append('entityId', '@entityId');
+        LoaderService.Show();
+        $.ajax({
+            url: '../../files/upload',
+            method: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (uploaded, textstatus, jqxhr) {
+                if(!uploaded){
+                    return;
+                }
+                
+                $('#ImagePreview').attr('src', uploaded.Url);
+                $('#UploadedImageId').attr('value', uploaded.Id);
+
+                event.target.value = '';
+                LoaderService.Hide();
+            }
+        });
+    }
+</script>

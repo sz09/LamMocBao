@@ -1,0 +1,75 @@
+﻿@using LamMocBaoWeb.Resources
+<section id="kien-thuc">
+    <div class="pb-3 pt-3">
+        <div class="title">
+            <h4>KHO KIẾN THỨC LÂM MỘC BẢO</h4>
+        </div>
+        <div class="p-0 my-2">
+            <div class="row mx-auto my-auto">
+                <div id="myCarousel" class="carousel slide w-100" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        @if (Convert.ToInt32(@Context.Request.Cookies.FirstOrDefault(d => d.Key == "userdevice").Value) <= 390)
+                        {
+                            @foreach (var row in (ViewBag.KnowdgeRows as IEnumerable<IEnumerable<Shared.Models.PublishedKnowledge>>).Select((items, index) => new { items, index }))
+                            {
+                                <div class="carousel-item @(row.index == 0 ? "active": "")">
+                                    <div class="row">
+                                        @foreach (var item in row.items)
+                                        {
+                                            <div class="col-6">
+                                                <div class="card product-item">
+                                                    <img class="card-img-top" src="@item.UploadedImage.Url" alt="@item.Name">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">@item.Name</h5>
+                                                        <p class="card-text no-wrap-content">
+                                                            @item.Summary
+                                                        </p>
+                                                    </div>
+                                                    <a href="kien-thuc/@item.LinkName"><h6 class="bring-to-front">@Resource.HomePage_SeeMore</h6></a>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            @foreach (var row in (ViewBag.KnowdgeRows as IEnumerable<IEnumerable<Shared.Models.PublishedKnowledge>>).Select((items, index) => new { items, index }))
+                            {
+                                <div class="carousel-item @(row.index == 0 ? "active": "")">
+                                    <div class="row">
+                                        @foreach (var item in row.items)
+                                        {
+                                            <div class="col-sm-3">
+                                                <div class="card product-item">
+                                                    <img class="card-img-top" src="@item.UploadedImage.Url" alt="@item.Name">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">@item.Name</h5>
+                                                        <p class="card-text no-wrap-content">
+                                                           @Html.Raw(item.Summary)
+                                                        </p>
+                                                    </div>
+                                                    <a href="kien-thuc/@item.LinkName"><h6 class="bring-to-front">@Resource.HomePage_SeeMore</h6></a>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                    </div>
+                    <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+                        <span class="fa fa-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+                        <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

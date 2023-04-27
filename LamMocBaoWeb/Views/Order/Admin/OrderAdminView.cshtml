@@ -1,0 +1,236 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.Services
+@using Shared.Utilities
+@model ViewOrderViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_Orders;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    label {
+        font-weight: 600;
+    }
+</style>
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_Orders)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <input type="hidden" class="form-control" placeholder="@Resource.Order_Customer_Name" name="Id" value="@Model.Id">
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.Order_View_Order</h5>
+                <div class="button-group pull-right">
+                    @Html.ActionLink(@Resource.Common_Close, "OrderAdmin", "Order", null, new {
+                @class="btn btn-sm btn-danger"
+                })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="row col-md-12">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>@Resource.Order_Customer_Infos</label>
+                                <div class="form-group border rounded">
+                                    <div class="form-group m-2">
+                                        <label>@Resource.Customer_Name</label>
+                                        <label class="form-control f-content"> @Model.Customer.FullName </label>
+                                    </div>
+                                    <div class="form-group m-2">
+                                        <label>@Resource.Customer_Birthday</label>
+                                        <label class="form-control f-content">
+                                            @Model.Customer.BirthdayStr
+                                            <span class="badge badge-secondary large-badge">@Model.Customer.BirthDayTypeStr</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group m-2">
+                                        <label>@Resource.Customer_PhoneNumber</label>
+                                        <label class="form-control f-content">
+                                            <a id="phone-number" href="tel:+@Model.Customer.PhoneNumber ">@Model.Customer.PhoneNumber </a>
+                                           @* <span class="badge badge-info large-badge" onclick="copyToClipboard('#phone-number')">
+                                                <i class="fa fa-copy"></i>
+                                            </span>*@
+                                        </label>
+                                    </div>
+                                    <div class="form-group m-2">
+                                        <label>@Resource.Customer_Email</label>
+                                        <label class="form-control f-content">
+                                            <a id="email" href="mailto:+@Model.Customer.Email">@Model.Customer.Email </a>
+                                           @* <span class="badge badge-info large-badge" onclick="copyToClipboard('#email')">
+                                                <i class="fa fa-copy"></i>
+                                            </span>*@
+                                        </label>
+                                    </div>
+                                    <div class="form-group m-2">
+                                        <label>@Resource.Customer_Address</label>
+                                        <label class="form-control f-content">
+                                            <a id="address">@(string.Join(", ", new List<string> {Model.Address, Model.Ward, Model.District, Model.Province}.Where(d => !string.IsNullOrWhiteSpace(d)))) </a>
+                                            @*<span class="badge badge-info large-badge" onclick="copyToClipboard('#address')">
+                                                <i class="fa fa-copy"></i>
+                                            </span>*@
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <label>@Resource.Order_Infos</label>
+                            <div class="form-group border rounded">
+                                <div class="form-group border rounded m-2">
+                                    <div class="row header m-2">
+                                        <label class="col-md-4 font-weight-bold">@Resource.Product_ProductName</label>
+                                        <label class="col-md-3 font-weight-bold">@Resource.Product_SellingPrice</label>
+                                        <label class="col-md-2 font-weight-bold">@Resource.Product_Quantity</label>
+                                        <label class="col-md-3 font-weight-bold text-right">@Resource.Product_Temp_Sum_Price</label>
+                                    </div>
+                                    <div class="content m-3">
+                                        @foreach (var item in Model.OrderDetails.Select((item, index) => new { obj = item, index }))
+                                        {
+                                            <div class="row order-detail-row">
+                                                <div class="product-preview col-md-4">
+                                                    <div class="d-inline-block">
+                                                        <span class="d-inline-block">@item.obj.Name (@item.obj.SizeName)</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">@item.obj.Price.ToCultureCurrency()</div>
+                                                <span class="col-md-2"> <i class="fa-sharp fa-solid fa-xmark"></i> @item.obj.Quantity </span>
+                                                <div class="col-md-3 font-weight-bold text-right">@item.obj.TotalPrice.ToCultureCurrency()</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                    <div class="col-md-9"></div>
+                                    <div class="col-md-3 text-right">
+                                        <span class="font-weight-bold">@Model.TotalPrice.ToCultureCurrency()</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                    <label class="col-md-6">@Resource.Promotion_Code: <i>@(Model.PromotionCode ?? Resource.Order_Promotion_None)</i></label>
+                                    <div class="col-md-6 text-right">
+                                        <span class="font-weight-bold">@Model.PromotionMessage</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                    <div class="col-md-9"></div>
+                                    <div class="col-md-3 text-right">
+                                        <span class="font-weight-bold">@Model.CalculatedPrice.ToCultureCurrency()</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row m-2">
+                                    <div class="col-md-12">
+                                        <label>@Resource.Order_Status</label>
+                                        <div class="pull-right">
+                                            @{
+                                                var canNotChangeToStatuses = Model.OrderStatus.CantChangeTo();
+                                            }
+                                            @foreach (var status in Enum.GetValues<OrderStatus>())
+                                            {
+                                                <button class="@status.GetOrderStatusCss()" @(canNotChangeToStatuses.Contains(status) ? "disabled": "")
+                                                    onclick="changeToStatus('@status')">
+                                                    @status.GetOrderStatusName()
+                                                    @if(status == Model.OrderStatus){
+                                                        <i class="fa-solid fa-check"></i>
+                                                    }
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.IsDeliveryToAnotherAddress && Model.DeliveryAddress != null)
+                    {
+                        <div class="row col-md-12">
+                            <div class="form-group">
+                                <label>@Resource.Customer_IsShipToAnother_Address</label>
+                                <div class="form-group border rounded">
+                                    <div class="form-group row m-2">
+                                        <label>@Resource.Customer_Address</label>
+                                        <div class="form-control">
+                                            <span>@(string.Join(", ", new List<string> {Model.DeliveryAddress.Address, Model.DeliveryAddress.Ward, Model.DeliveryAddress.District, Model.DeliveryAddress.Province}.Where(d => !string.IsNullOrWhiteSpace(d))))</span> 
+                                        </div>
+                                    </div>
+                                    <div class="form-group row m-2">
+                                        <label>@Resource.Customer_Receiver</label>
+                                        <div class="form-control">
+                                            <span>@Model.DeliveryAddress.Receiver</span> 
+                                        </div>
+                                    </div>
+                                    <div class="form-group row m-2">
+                                        <label>@Resource.Customer_Phone</label>
+                                        <div class="form-control">
+                                            <span>@Model.DeliveryAddress.PhoneNumber.ToTel()</span> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    var __splitter = '@splitter';
+    $(document).ready(function() {
+        var _model = @editModel;
+        FormUtils.SetFormValue('editOrderAdmin', _model);
+        LoaderService.Register();
+    });
+
+    function removeOldItem(item) {
+        var removeOldImages = $('[name=RemoveOldImages]');
+        var value = removeOldImages.val();
+        var images = value.split(__splitter).filter((item) => !!item);
+        images.push(item);
+        var imageStr = images.join(__splitter);
+        removeOldImages.val(imageStr);
+        $('#product-image-' + item).remove();
+    }
+
+    function copyToClipboard(element) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).text()).select();
+        document.execCommand("copy");
+        $temp.remove();
+    }
+
+    function changeToStatus(status) {
+        if (status == '@Model.OrderStatus') {
+            return;
+        }
+
+        LoaderService.Show();
+        $.ajax({
+            method: 'post',
+            url: `@Url.ActionLink("ChangeStatus", "Order")?orderId=@Model.Id&orderStatus=${status}`,
+            success: function(res) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+
+

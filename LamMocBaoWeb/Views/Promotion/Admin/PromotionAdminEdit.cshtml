@@ -1,0 +1,149 @@
+﻿@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.Services
+@using Shared.Utilities
+@model EditPromotionViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_Promotions;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_Promotions)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @using (Html.BeginForm("PromotionAdminUpdate", "Promotion", null, FormMethod.Post))
+    {
+        <input type="hidden" class="form-control" placeholder="@Resource.Promotion_Code" name="Id" value="@Model.Id">
+        <input type="hidden" name="RemoveOldImages" />
+        <div class="main-dialog" id="main-modal" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Resource.Promotion_Update_Promotion</h5>
+                    <div class=" button-group pull-right">
+                        <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+                        @Html.ActionLink(@Resource.Common_Close, "PromotionAdmin", "Promotion", null, new {
+                @class="btn btn-sm btn-danger"
+                })
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="form-content">
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Promotion_Code</label>
+                                <input type="text" class="form-control" placeholder="@Resource.Promotion_Code" name="Code" value="@Model.Code">
+                                @Html.ValidationMessageFor(d => d.Code)
+                            </div>
+                        </div>
+                        @*  <div class="col-md-12 ">
+                <div class="form-group row">
+                <label>@Resource.Promotion_Content</label>
+                <textarea class="form-control" placeholder="@Resource.Promotion_Content" name="Content" rows="3">@Model.Content </textarea>
+                </div>
+                </div>*@
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Promotion_Mode</label>
+                                <div class="row col-md-12">
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(d => d.PromotionMode, PromotionMode.Manual, new { name = "PromotionMode", @checked = Model.PromotionMode == PromotionMode.Manual, id= "PromotionMode_Manual"})
+                                        <label class="form-check-label" for="PromotionMode_Manual">
+                                            @Resource.Promotion_Manual
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(d => d.PromotionMode, PromotionMode.Period, new { name = "PromotionMode", @checked = Model.PromotionMode == PromotionMode.Period, id= "PromotionMode_Period" })
+                                        <label class="form-check-label" for="PromotionMode_Period">
+                                            @Resource.Promotion_Period
+                                        </label>
+                                    </div>
+                                </div>
+                                <p class="row col-md-12"> @Html.ValidationMessageFor(d => d.PromotionMode) </p>
+
+                                <div id="period-mode" style="display: none">
+                                    <div class="row col-md-12">
+                                        <div class="col-md-6">
+                                            @Resource.Promotion_From
+                                            <input type="tel" class="form-control" placeholder="@Resource.Promotion_From" name="From" value="@Model.From?.ToString("dd/MM/yyyy")">
+                                        </div>
+                                        <div class="col-md-6">
+                                            @Resource.Promotion_To
+                                            <input type="tel" class="form-control" placeholder="@Resource.Promotion_To" name="To" value="@Model.To?.ToString("dd/MM/yyyy")">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.Promotion_DiscountPercent</label>
+                                <input type="number" class="form-control" placeholder="@Resource.Promotion_DiscountPercent" name="DiscountPercent" value="@Model.DiscountPercent">
+                                @Html.ValidationMessageFor(d => d.DiscountPercent)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <div class="checkbox">
+                                    <label>
+                                        @Html.CheckBoxFor(d => d.IsActive, new { name = "IsActive",  @checked = Model.IsActive })
+                                        @Resource.Promotion_IsActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#period-mode input[type=tel]").datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+            $('[name=PromotionMode]').on('change', function(event) {
+                if (event.target.value === 'Manual') {
+                    $('#period-mode').hide()
+                }
+                else {
+                    $('#period-mode').show()
+                }
+            });
+            $('[name=PromotionMode][checked=true]').trigger('change')
+
+            var _model = @editModel;
+            FormUtils.SetFormValue('editPromotionAdmin', _model);
+            LoaderService.Register();
+        })
+
+        function removeOldItem(item) {
+            var removeOldImages = $('[name=RemoveOldImages]');
+            var value = removeOldImages.val();
+            var images = value.split(__splitter).filter((item) => !!item);
+            images.push(item);
+            var imageStr = images.join(__splitter);
+            removeOldImages.val(imageStr);
+            $('#product-image-' + item).remove();
+        }
+    </script>
+}
+

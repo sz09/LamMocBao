@@ -1,0 +1,82 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Shared.Utilities
+@model CommonDataTransfer
+@{
+    var entityId = Model.To<Guid>();
+    var splitter = Constant.SPLITTER;
+}
+
+<label>@Resource.Product_Images</label>
+<div class="custom-file mb-3">
+    <input type="file" class="custom-file-input" name="Files" id="customFile" accept="images/*" multiple>
+    <label class="custom-file-label" for="customFile">@Resource.Product_Choose_Files</label>
+    <div class="d-block" id="new-images-bound">
+        <label>@Resource.Product_NewImages</label>
+        <div class="col-12 row" id="new-images">
+        </div>
+    </div>
+</div>
+<input id="UploadedImageIds" type="hidden" name="UploadedImageIds" />
+<script src="~/js/upload-image.js" asp-append-version="true"></script>
+<script>
+    $(document).ready(function() {
+        registerImageChangeEvent();
+    });
+    
+    var uploadTimer;
+    function registerImageChangeEvent() {
+        $('input.custom-file-input').on('change', function(event) {
+            if (uploadTimer) {
+                clearTimeout(uploadTimer);
+            }
+            uploadTimer = setTimeout(() => {
+                uploadFile(event);
+            }, 1000)
+            event.stopPropagation();
+        });
+    }
+    function uploadFile(event) {
+        var files = event.target.files;
+        var data = new FormData();
+        for (var i = 0; i < files.length; i++) {
+            data.append(files[i].name, files[i]);
+        }
+
+        LoaderService.Show();
+        data.append('entityId', '@entityId');
+        $.ajax({
+            url: '/files/uploads',
+            method: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (uploaded, textstatus, jqxhr) {
+                if(!uploaded){
+                    return;
+                }
+                 setUploadedImageIdsValue(uploaded.map(d => d.Id));
+                uploaded.forEach((item) => {
+                    var lastItems = $('[id^=new-image-]').last();
+                    var lastItemId = lastItems[0]?.id; // Convert string to int, then increase 1
+                    var id = 'new-image-' + (lastItemId ? lastItemId.replace('new-image-', '') * 1 + 1 : 1);
+                    var dom = ImageUtils.BuildDOM(item, 'new-image', 'new-images', 'UploadedImageIds');
+                    document.getElementById('new-images').appendChild(dom);
+                    if ($('[id^=new-image-]').length > 0) {
+                        $('#new-images-bound').removeClass('d-none');
+                    }
+                })
+
+                event.target.value = '';
+                LoaderService.Hide();
+            }
+        });
+    }
+    var splitter = '@splitter';
+    function setUploadedImageIdsValue(uploadedIds){
+        var val = $('#UploadedImageIds').val() ?? '';
+        var values = StringUtils.Split(val);
+        values = values.concat(uploadedIds);
+        $('#UploadedImageIds').val(StringUtils.Combine(values));
+    }
+</script>

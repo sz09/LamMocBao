@@ -1,0 +1,65 @@
+﻿@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@{
+    var listKnowledges = ViewBag.ListKnowledges as List<KnowledgeLiteModel>;
+    var knowledgesOnTrend = ViewBag.KnowledgesOnTrend as List<KnowledgeLiteModel>;
+    var productsOnTrend = ViewBag.ProductsOnTrend as List<ProductLiteViewModel>;
+    var searchTerm = Context.Request.Query["search"];
+}
+<div class="col-md-3 hide-in-mobile">
+
+    <div>
+        <h5 class="color-text">Kho kiến thức</h5>
+        <div class="custom-knowledge-href-group">
+            @foreach (var item in listKnowledges)
+            {
+                <a href="@Url.ActionLink("PageForKnowledge", "Knowledge", new { linkName = @item.LinkName })">@item.Name</a>
+            }
+        </div>
+
+        <div class="nav-line"></div>
+
+        <h5 class="color-text">Mọi người đang quan tâm đến</h5>
+        <div class="custom-knowledge-href-group">
+            @foreach (var item in knowledgesOnTrend)
+            {
+                <a href="@Url.ActionLink("PageForKnowledge", "Knowledge", new { linkName = @item.LinkName })">@item.Name</a>
+            }
+        </div>
+
+        <div class="nav-line"></div>
+
+        <h5 class="color-text">Tìm kiếm kiến thức</h5>
+        <div class="form-group has-search">
+            <span class="fa fa-search form-control-feedback-knowledge"></span>
+            <input type="text" class="form-control input-search" onkeypress="onSearchKnowledge(event)"  placeholder="Tìm kiếm ở đây" value="@searchTerm">
+        </div>
+
+        <div class="nav-line"></div>
+
+        <h5 class="color-text">Sản phẩm hot hiện nay</h5>
+        @foreach (var item in productsOnTrend)
+        {
+            <div class="d-flex custom-hot-product">
+            <a href="@Url.ActionLink("ByLinkName", "Product", new { name = @item.LinkName })">
+                    <img src="@item.ImagePreview" style="border-radius: 5px"/>
+                    <div class="custom-hot-product-information">
+                        <p class="pre-wrap">@Html.Raw(item.ShortDescription)</p>
+                        <h3 class="color-text">@item.SellingPrice.ToCultureCurrency()</h3>
+                    </div>
+                </a>
+
+            </div>
+        }
+        <button class="register-box-title mt-2">
+            <h4 class="color-text font-weight-bold"><a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dang-ky-thiet-ke-vat-pham-ca-nhan" target="_self" class="color-text">Đăng ký thiết kế vật phẩm cá nhân</a></h4>
+        </button>
+    </div>
+</div>
+<script>
+    function onSearchKnowledge(event) {
+        if (event.key === "Enter") {
+            window.location.href = `@Url.ActionLink("Index", "Knowledge")?search=${$(event.target).val()}`;
+        }
+    }
+</script>

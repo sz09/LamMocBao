@@ -1,0 +1,186 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.Utilities;
+@using System.Web
+@using System.Linq
+@using System.Collections
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@model ProductViewModel
+@inject IServiceConfig _serviceConfig
+@{
+    ViewData["Title"] = ViewBag.NotFoundProduct == null ? $"{Model.Name} - {@Resource.Label_Products}" : Resource.Product_No_Result;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewBag.NotFoundProduct != null)
+{
+    <label><i>@Resource.Product_No_Result</i></label>
+}
+else
+{
+    <div class="step-title custom-href-group">
+        <h4> <a href="@Url.ActionLink("Index", "")">@Resource.Label_Home_Page</a> / <a href=" @Url.ActionLink("Index", "Product")">@Resource.Category_Product</a></h4>
+    </div>
+    <div class="product-by-name">
+        <div class="row col-md-12">
+            <div class="col-md-6 p-0">
+                <div class="card detail-card">
+                    <div class="card-image card-padding">
+                        @Html.Raw(Model.ImageUrls.ToImageSlider(Model.Id, SliderMode.ShowPreview))
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row col-md-12">
+                    <h4 class="product-name color-text">@Model.Name</h4>
+                </div>
+                @if (Model.Materials != null)
+                {
+                    <div class="row col-md-12 product-material">
+                        <input type="hidden" id="SelectedMaterial" name="SelectedMaterialId" />
+                        <div class="row col-md-12"><h5>@Resource.Product_Material:</h5></div>
+                        <div class="btn-group custom-button-group custom-disbaled-button btn-group-toggle row" data-toggle="buttons">
+                            @foreach (var material in Model.Materials)
+                            {
+                                <label class="btn btn-outline-light m-2">
+                                    <input type="radio" disabled name="Material" id="Material" value="@material.Id"> @material.Name
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+                @if (Model.SupportedSizes != null)
+                {
+                    <div class="row col-md-12 product-size">
+                        <input type="hidden" id="SelectedSize" name="SelectedSizeId" />
+                        <div class="row col-md-12"><h5>@Resource.Product_Size_Necklace:</h5></div>
+                        <div class="btn-group custom-button-group btn-group-toggle row" data-toggle="buttons">
+                            @foreach (var size in Model.SupportedSizes)
+                            {
+                                var price = Model.PriceBySizes.FirstOrDefault(d => d.SizeId == size.Id)?.SellingPrice ?? Model.SellingPrice;
+                                <label class="btn btn-outline-light m-2">
+                                    <input type="radio" name="Size" id="supported-size-@size.Id" value="@size.Id" data-price-by-size="@price.ToCultureCurrency()"> @size.Number @size.Unit
+                                </label>
+                            }
+                        </div>
+                        <div class="row ml-3 text-danger d-none col-md-12" id="size-error">
+                            <small><i>@Resource.Error_PleaseSelectSize</i></small>
+                        </div>
+                    </div>
+                }
+
+                <div class="row col-md-12">
+                    <div class="product-price">@Model.SellingPrice.ToCultureCurrency()</div>
+                    <div class="row col-md-12 add-to-cart">
+                        <div class="col-2 quantity-number">
+                            <input class="col-2 width-input-mobile-screen " type="number" min="1" step="1" id="Quantity" name="Quantity" value="1" style="margin-top: 18px" />
+                        </div>
+                        <div class="col-10">
+                            <button type="button" class="btn paid-button lmb-btn" id="add-to-cart" onclick="addToCart()" style="width: 19rem">@Resource.Product_AddToCart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row col-md-8 mt-2">
+                    @foreach (var item in (List<LamMocBaoWeb.ViewModels.ProductSizeStock>)ViewBag.QuantityBySizes)
+                    {
+                        if (item.CurrentQuantity == 0)
+                        {
+                            <div class="card border d-none" name="quantity-by-size" data-quantity-by-size="@item.ProductSizeId">
+                                <div class="card-header">
+                                    <span class="text-danger" >@Resource.Stock_Message_Show_Rare_Can_Order_To_Create</span>
+                                </div>
+                            </div>
+                        }
+                        else if (_serviceConfig.RareItemShowWarningBelow >= item.CurrentQuantity)
+                        {
+                            <div class="card border d-none" name="quantity-by-size" data-quantity-by-size="@item.ProductSizeId">
+                                <div class="card-header">
+                                    <span class="text-danger" >@string.Format(@Resource.Stock_Message_Show_Rare_Quantity, item.CurrentQuantity)</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card border d-none" name="quantity-by-size" data-quantity-by-size="@item.ProductSizeId">
+                                <div class="card-header">
+                                    <span class="" >@string.Format(@Resource.Stock_Message_Show_Quantity, item.CurrentQuantity)</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="row col-md-12 mt-5" style="width:26rem">
+                    <div class="title" style="padding:1rem">
+                        <p class="contact-number">@Html.Raw(@_serviceConfig.ContactInfos.ContactPhoneNumbers.ToTel()) </p>
+                        <p class="contact-title">Liên hệ để được tư vấn miễn phí</p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <nav class="mt-2">
+        <div class="nav nav-tabs custom-nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Thông tin sản phẩm</a>
+            <a class="nav-item nav-link " id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Mô tả chi tiết</a>
+        </div>
+    </nav>
+    <div class="tab-content custom-tab" id="nav-tabContent">
+        <div class="tab-pane fade show active pre-wrap" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">@Html.Raw(Model.Description)</div>
+        <div class="tab-pane fade pre-wrap" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"> @Html.Raw(Model.ShortInfomations) </div>
+    </div>
+
+    <div class="mt-2">
+        @await Html.PartialAsync("Public/SuggestionProduct")
+    </div>
+}
+
+@section PageScripts
+    {
+    <script>
+        var isSubmitted = false;
+        $(document).ready(function() {
+            $('[name=Size]').change(function(e) {
+                var sizes = $('[name=Size]:checked');
+                if (sizes.length == 0) {
+                    $('#size-error').addClass('d-none')
+                }
+                else {
+                    if (isSubmitted)
+                        $('#size-error').removeClass('d-none')
+                }
+            })
+
+            $('[id^=supported-size-]').change(function(event) {
+                $('.product-price').text($(event.target).data('price-by-size'));
+                var supportedSizeId = event.target.id.replace('supported-size-', '');
+                $('[name=quantity-by-size]').each(function(i, e) {
+                    if ($(e).data('quantity-by-size') == supportedSizeId) {
+                        $(e).removeClass('d-none');
+                    }
+                    else {
+                        $(e).addClass('d-none');
+                    }
+                });
+            });
+        });
+        function addToCart() {
+            isSubmitted = true;
+            var quantity = $('#Quantity').val();
+            var size = $('[name=Size]:checked').val();
+            if (!size) {
+                $('#size-error').removeClass('d-none')
+            }
+
+            $.ajax({
+                method: 'put',
+                url: '@Url.ActionLink("AddToCart", "Cart", new { productId = Model.Id })' + `?quantity=${quantity}&sizeId=${size}`
+            }).done(function() {
+                window.location.reload();
+            });
+        }
+    </script>
+}

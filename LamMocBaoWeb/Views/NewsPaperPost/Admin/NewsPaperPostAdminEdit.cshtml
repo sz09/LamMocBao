@@ -1,0 +1,153 @@
+﻿@using LamMocBaoWeb.Resources
+@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using Services.Services
+@using Shared.Utilities
+@model EditNewsPaperPostViewModel
+@inject IServiceConfig _config
+@{
+    var serializerSettings = new JsonSerializerSettings();
+    serializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+    var editModel = @Html.Raw(JsonConvert.SerializeObject(Model, serializerSettings));
+    var splitter = Constant.SPLITTER;
+    ViewData["Title"] = @Resource.Label_NewsPaperPosts;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var entityId = Model.Id;
+}
+
+@if (Model == null)
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@string.Format(Resource.Common_No_Result, Resource.Label_NewsPaperPosts)</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @using (Html.BeginForm("NewsPaperPostAdminUpdate", "NewsPaperPost", null, FormMethod.Post))
+    {
+        <input type="hidden" class="form-control" placeholder="@Resource.NewsPaperPost_Name" name="Id" value="@Model.Id">
+        <input type="hidden" name="RemoveOldImages" />
+        <div class="main-dialog" id="main-modal" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Resource.NewsPaperPost_Update_NewsPaperPost</h5>
+                    <div class=" button-group pull-right">
+                        <button type="submit" class="btn btn-sm btn-primary">@Resource.Common_Update</button>
+                        @Html.ActionLink(@Resource.Common_Close, "NewsPaperPostAdmin", "NewsPaperPost", null, new {
+                            @class="btn btn-sm btn-danger"
+                        })
+                    </div>
+                </div>
+                <div class="main-content">
+                    <div class="form-content">
+                         <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.NewsPaperPost_Hint</label>
+                                <input type="text" class="form-control" placeholder="@Resource.NewsPaperPost_Hint" name="Hint" value="@Model.Hint">
+                                @Html.ValidationMessageFor(d => d.Hint)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.NewsPaperPost_Link</label>
+                                <input type="text" class="form-control" placeholder="@Resource.NewsPaperPost_Link" name="Link" value="@Model.Link">
+                                @Html.ValidationMessageFor(d => d.Link)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.NewsPaperPost_SequenceNumber</label>
+                                <input type="number" class="form-control" placeholder="@Resource.NewsPaperPost_SequenceNumber" name="SequenceNumber" value="@Model.SequenceNumber">
+                                @Html.ValidationMessageFor(d => d.SequenceNumber)
+                            </div>
+                        </div>
+                        <div class="col-md-12 ">
+                            <div class="form-group row">
+                                <label>@Resource.NewsPaperPost_ImagePreview</label>
+                                <input type="hidden" id="UploadedImageId" name="UploadedImageId" value="@Model.UploadedImageId"/>
+                                <input type="file" class="custom-file-input" accept="images/*">
+                                <label class="custom-file-label" for="customFile">@Resource.NewsPaperPost_Select_ImagePreview</label>
+                                @if (!string.IsNullOrWhiteSpace(Model.ImagePreview))
+                                {
+                                    <img id="ImagePreview" src="@Model.ImagePreview" class="img-preview"/>
+                                }
+                                else
+                                {
+                                    <img id="ImagePreview" src="" class="img-preview"/>
+                                }
+                                @Html.ValidationMessageFor(d => d.ImagePreview)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<script type="text/javascript">
+    var __splitter = '@splitter';
+    $(document).ready(function() {
+        var _model = @editModel;
+        FormUtils.SetFormValue('editNewsPaperPostAdmin', _model);
+        LoaderService.Register();
+        registerImageChangeEvent();
+    });
+
+    function removeOldItem(item) {
+        var removeOldImages = $('[name=RemoveOldImages]');
+        var value = removeOldImages.val();
+        var images = value.split(__splitter).filter((item) => !!item);
+        images.push(item);
+        var imageStr = images.join(__splitter);
+        removeOldImages.val(imageStr);
+        $('#product-image-' + item).remove();
+    }
+
+    
+    var uploadTimer;
+    function registerImageChangeEvent() {
+        $('input.custom-file-input').on('change', function(event) {
+            if (uploadTimer) {
+                clearTimeout(uploadTimer);
+            }
+            uploadTimer = setTimeout(() => {
+                uploadFile(event);
+            }, 1000)
+            event.stopPropagation();
+        });
+    }
+    
+    function uploadFile(event) {
+        var files = event.target.files;
+        var data = new FormData();
+        if(files.length){
+            data.append(files[0].name, files[0]);
+        }
+        data.append('entityId', '@entityId');
+        LoaderService.Show();
+        $.ajax({
+            url: '../../../files/upload',
+            method: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (uploaded, textstatus, jqxhr) {
+                if(!uploaded){
+                    return;
+                }
+                
+                $('#ImagePreview').attr('src', uploaded.Url);
+                $('#UploadedImageId').attr('value', uploaded.Id);
+
+                event.target.value = '';
+                LoaderService.Hide();
+            }
+        });
+    }
+</script>
+

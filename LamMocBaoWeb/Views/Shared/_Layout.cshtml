@@ -1,0 +1,268 @@
+﻿@using LamMocBaoWeb.Resources;
+@using System.Web.Optimization
+@using LamMocBaoWeb.Utilities
+@using Services.Services
+@using System.Web
+@using Shared.Models
+@using Shared.Utilities
+<!DOCTYPE html>
+@inject IServiceConfig _serviceConfig
+@{
+    var countCarts = @Context.Request.Cookies.Where(d => d.Key.StartsWith(Constant.Cookie_CartKey)).Sum(d =>
+    {
+        var productCartCounts = JsonSerialization.Deserialize<List<ProductCartTempCount>>(d.Value);
+        return productCartCounts.Select(d => d.Q).Sum();
+    });
+}
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/form-select.css" />
+    <link rel="stylesheet" href="~/lib/jquery/css/jquery.modal.min.css.css" />
+    <link rel="stylesheet" href="~/lib/jquery/css/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    @RenderSection("PageStyles", required: false)
+</head>
+<body>
+    <section>
+        <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar ftco-navbar-light" id="ftco-navbar">
+            <div class="container">
+
+                <button style="color: #ebb752 " class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="fa fa-bars"></span>
+                </button>
+
+                <a class="navbar-brand align-items-center" href="/">
+                    <img class="card-img" src="/logoLBM.png" alt="top page">
+                </a>
+
+                <div class="collapse navbar-collapse" id="ftco-nav">
+                    <div class="d-block" style="width: 100%">
+                        <div class="col-12 row" style="min-width: fit-content;">
+
+                            <div class="form-group has-search col-md-4">
+                                <span class="fa fa-search form-control-feedback"></span>
+                                <input type="text" class="form-control input-search" onkeypress="onSearchProduct(event)" value="@ViewBag.Search" placeholder="Tìm kiếm sản phẩm">
+                            </div>
+
+                            <div class="button-register col-md-3">
+                                <a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dang-ky-thiet-ke-vat-pham-ca-nhan" class="button">@Resource.Register_Product_Design</a>
+                            </div>
+
+                            <div class="button-register col-md-3">
+                                <a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dat-lich-xem-menh-so-voi-chuyen-gia" class="button">@Resource.Book_date</a>
+                            </div>
+
+                            <div class="button-shopping-cart desktop-cart col-md-1">
+                                <button class="custom-button-shopping-cart">
+                                    <a href="/gio-hang">
+                                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                                        @if (@countCarts > 0)
+                                        {
+                                            <span class="cart-quantity">@countCarts</span>
+                                        }
+                                    </a>
+                                </button>
+                            </div>
+
+                        </div>
+                        <div class="nav-line"></div>
+                        <ul class="navbar-nav mr-auto menu">
+                            <li class="nav-item px-lg-2">
+                                <a class="nav-link" href="/#chuyen-gia"><span class="d-inline-block d-lg-none icon-width"></span>@Resource.Label_Fengshui_Designer</a>
+                            </li>
+                            <li class="nav-item px-lg-2"> <a class="nav-link" href="/#ve-chung-toi"><span class="d-inline-block d-lg-none icon-width"></span>@Resource.Label_About_Us</a> </li>
+                            <li class="nav-item px-lg-2"> <a class="nav-link" href="@Url.ActionLink("Index", "Product")"><span class="d-inline-block d-lg-none icon-width"></span>@Resource.Label_Products</a> </li>
+                            <li class="nav-item px-lg-2">
+                                <a class="nav-link" href="@Url.ActionLink("Index", "Knowledge")"><span class="d-inline-block d-lg-none icon-width"></span>@Resource.Label_Knowledge</a>
+                            </li>
+                            <li class="nav-item px-lg-2">
+                                <a class="nav-link" href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=lien-he"><span class="d-inline-block d-lg-none icon-width"></span>@Resource.Label_Contact</a>
+                            </li>
+                        </ul>
+                    </div>
+                   
+                </div>
+                <div class="button-shopping-cart mobile-cart">
+                    <button class="custom-button-shopping-cart">
+                        <a href="/gio-hang">
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                            @if (@countCarts > 0)
+                            {
+                                <span class="cart-quantity">@countCarts</span>
+                            }
+                        </a>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </section>
+
+    <section class="container fixed-height">
+        <main role="main" class="pb-3" >
+            @RenderBody()
+        </main>
+    </section>
+
+    <!-- Site footer -->
+    <footer class="site-footer">
+        <div id="lien-he" class="container w-100">
+            <a class="navbar-brand align-items-center" href="/">
+                <img class="card-img" style="margin-left:12px" src="/logoLBM.png" alt="top page">
+            </a>
+            <div class="col-12 row">
+
+                <div class="col-xs-6 col-md-3">
+                    <h6>Thông tin liên hệ</h6>
+                    <ul class="footer-links">
+                        <li><i class="fa fa-map-marker" aria-hidden="true"></i><span> @_serviceConfig.ContactInfos.ContactAddress </span></li>
+                        <li><i class="fa fa-mobile" aria-hidden="true"></i><span> @Html.Raw(@_serviceConfig.ContactInfos.ContactPhoneNumbers.ToTel()) </span></li>
+                        <li><i class="fa fa-envelope" aria-hidden="true"></i><span> @_serviceConfig.ContactInfos.Email </span></li>
+                        <li><i class="fa fa-home" aria-hidden="true"></i><span> @_serviceConfig.ContactInfos.WorkingTime </span></li>
+                    </ul>
+                </div>
+
+                <div class="col-xs-6 col-md-3">
+                    <h6>Điều khoản và chính sách</h6>
+                    <ul class="footer-links">
+                        <li><a href="#" target="_self">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" target="_self">Bảo hành và đổi trả</a></li>
+                        <li><a href="#" target="_self">Chính sách vận chuyển</a></li>
+                        <li><a href="#" target="_self">Chính sách thanh toán</a></li>
+                        <li><a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dang-ky-dai-ly" target="_self">Đăng ký đại lý</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-6 col-md-2">
+                    <h6>Bộ sưu tập</h6>
+                    <ul class="footer-links">
+                        <li><a href="@Url.ActionLink("Index", "Product")?filter.group=@CategoryGroup.VatPhamTheoNguHanh" target="_self">Theo ngũ hành</a></li>
+                        @foreach (var item in _serviceConfig.ShowOnHomepageFengshuis)
+                        {
+                            <li><a href="@Url.ActionLink("Index", "Product")?filter.category=@item.Id" target="_self">@item.Name</a></li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-xs-6 col-md-2">
+                    <h6>Về chúng tôi</h6>
+                    <ul class="footer-links">
+                        <li><a href="/#ve-chung-toi" target="_self">Giới thiệu</a></li>
+                        <li><a href="@Url.ActionLink("Index", "Knowledge")" target="_self">Kiến thức</a></li>
+                        <li><a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=lien-he" target="_self">Liên hệ</a></li>
+                        <li><a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dat-lich" target="_self">Đặt lịch</a></li>
+                    </ul>
+                </div>
+                <div class="col-xs-6 col-md-2">
+                    <iframe src="@_serviceConfig.ContactInfos.GoogleMapFrameUrl" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+            <div class="col-12 row">
+                <div class="col-md-4">
+                    <h6>Kết nối với chúng tôi qua</h6>
+                    <ul class="social-icons">
+                        <li>
+                            <a class="youtube" href="@_serviceConfig.ContactInfos.Youtube" target="_blank">
+                                <i class="fa-brands fa-youtube"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="facebook" href="@_serviceConfig.ContactInfos.Facebook" target="_blank">
+                                <i class="fa-brands fa-facebook"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="instagram" href="@_serviceConfig.ContactInfos.Instagram" target="_blank">
+                                <i class="fa-brands fa-instagram"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+            </div>
+
+        </div>
+    </footer>
+
+    <div id="from-server-dom"></div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery-ui.js"></script>
+    <script src="~/lib/jquery/dist/jquery.modal.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/jquery.leanModal.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    @RenderSection("Scripts", required: false)
+    @RenderSection("PageScripts", required: false)
+
+    <script>
+        function onSearchProduct(event) {
+            if (event.key === "Enter") {
+                window.location.href = `@Url.ActionLink("Index", "Product")?search=${$(event.target).val()}`;
+            }
+        }
+        function getCookie(name) {
+            var dc = document.cookie;
+            var prefix = name + "=";
+            var begin = dc.indexOf("; " + prefix);
+            if (begin == -1) {
+                begin = dc.indexOf(prefix);
+                if (begin != 0) return null;
+            }
+            else
+            {
+                begin += 2;
+                var end = document.cookie.indexOf(";", begin);
+                if (end == -1) {
+                end = dc.length;
+                }
+            }
+            // because unescape has been deprecated, replaced with decodeURI
+            //return unescape(dc.substring(begin + prefix.length, end));
+            return decodeURI(dc.substring(begin + prefix.length, end));
+        } 
+
+        $(document).ready(function () {
+            var userdevice = "userdevice";
+            var exist = getCookie(userdevice)
+            // Detect screen width
+            document.cookie = userdevice + "=" + screen.width;
+            if(!exist){
+                window.location.reload();
+            }
+            //$(window).scroll(function () {
+            //    if ($(window).scrollTop() > 250) {
+            //        $('#ftco-navbar').addClass('navbar-fixed');
+            //    }
+            //    if ($(window).scrollTop() < 251) {
+            //        $('#ftco-navbar').removeClass('navbar-fixed');
+            //    }
+            //});
+
+
+            $('.menu .nav-link').on('click', function (event) {
+                if (event.target.href && event.target.href.indexOf('#') === 0) {
+                    var id = event.target.href;
+                    scrollIntoView(id);
+                }
+            });
+
+            if (location.href.indexOf('#') > 0) {
+                var segments = location.href.split('#');
+                if (segments.length === 2) {
+                    scrollIntoView('#' + segments[1])
+                }
+            }
+        });
+
+        function scrollIntoView(id) {
+            if ($(id)) {
+                $(id)[0].scrollIntoView();
+            }
+        }
+    </script>
+</body>
+</html>

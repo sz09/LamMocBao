@@ -1,0 +1,267 @@
+﻿@using System.Web
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@using LamMocBaoWeb.Resources
+@using Services.Services
+@using System.Threading;
+@using CategoryGroup = Shared.Models.CategoryGroup;
+@using Shared.Utilities
+@inject IServiceConfig _config
+@{
+    var menu = ViewBag.MenuHierarchy as MenuHierarchy;
+    var cultureInfo = Thread.CurrentThread.CurrentCulture;
+    var cultureCurrencyDecimalDigits = cultureInfo.NumberFormat.CurrencyDecimalDigits;
+    var cultureName = cultureInfo.Name;
+}
+
+@*Mobile screen *@
+<div class="custom-filter-category">
+    <div id="categoryCarousel" class="carousel slide" data-ride="carousel">
+        <div class="category">
+            <div class="carousel-inner">
+                @for (int i = 0; i <= (ViewBag.CategoryRows as IEnumerable<Shared.Models.Category>).Count() / 3; i++)
+                {
+                    <div class="carousel-item @(@i == 0 ? "active": "")">
+                        <div class="row">
+                            @foreach (var item in (ViewBag.CategoryRows as IEnumerable<Shared.Models.Category>).Skip(i * 3).Take(3))
+                            {
+                                <div class="col-4 category-item">
+                                    <a id="@item.Id" onclick="filterProductCategory(event)">
+                                        <img id="@item.Id" src="@item.DisplayImageUrl" loading="lazy" />
+                                        <p id="@item.Id">@item.Name</p>
+                                    </a>
+                                </div>
+
+                            }
+                        </div>
+                    </div>
+                }
+                <a class="carousel-control-prev text-dark" href="#categoryCarousel" role="button" data-slide="prev">
+                    <span class="fa fa-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next text-dark" href="#categoryCarousel" role="button" data-slide="next">
+                    <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="desktop-filter-block">
+    <div class="filter-content">
+        <div class="menu-level-0 d-block">
+            <span class="d-block color-text">@Resource.Common_ProductPortfolio</span>
+            <span class="d-block small-seperate color-text"></span>
+        </div>
+        <div class="group-menu-filter">
+            <p class="menu-level-1 pointerable @(ViewBag.Group == CategoryGroup.VatPhamTheoNguHanh ? "active": "")" id="0" onclick="filterByGroup(event)">Vật phẩm Ngũ hành</p>
+            @if (menu.MenuByProductTypes != null)
+            {
+                @foreach (var productType in menu.MenuByProductTypes)
+                {
+                    <div>
+                        <div class="custom-button-collapse-group">
+                            <p class="menu-level-2 @(ViewBag.ProductTypeId == productType.Id ? "active": "")" id="@productType.Id" name="productTypeFilter" onclick="filterByProductType(event)">
+                                @productType.Name
+                            </p>
+                            @if (productType.TypeTags.Count != 0)
+                            {
+                                <button class="navbar-toggler custom-button-collapse @(ViewBag.ProductTypeId == productType.Id ? "active": "")" type="button" data-toggle="collapse" data-target="#hasChild@(productType.Id)" aria-controls="hasChild" aria-expanded="@(ViewBag.ProductTypeId == productType.Id ? "true": "false")" aria-label="Toggle navigation">
+                                    <i class="fa-solid fa-caret-up"></i>
+                                    <i class="fa-solid fa-caret-down"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <span></span>
+                            }
+
+                        </div>
+
+
+                        @foreach (var typeTag in productType.TypeTags)
+                        {
+                            <div id="hasChild@(productType.Id)" class="collapse @(productType.Id == ViewBag.ProductTypeId ? "show": "") ">
+                                <p class="menu-level-3 @((ViewBag.ProductTypeTagId == typeTag.Id && productType.Id == ViewBag.ProductTypeId) ? "active": "")" id="@typeTag.Id" data-product-type="@productType.Id" name="productTypeTagFilter" data-product-type-id="@productType.Id" onclick="filterProductTypeTag(event)">
+                                    @typeTag.Name
+                                </p>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="group-menu">
+            @if (menu.MenuByCategories != null)
+            {
+                @foreach (var dict in menu.MenuByCategories)
+                {
+                    var group = (int)dict.Key;
+                    if (dict.Key == CategoryGroup.VatPhamTheoChatLieu)
+                    {
+                        <p class="menu-level-1" id="@group">@dict.Key.GetEnumDescription()</p>
+                    }
+                    else
+                    {
+                        <p class="menu-level-1 pointerable @(ViewBag.Group == dict.Key ? "active": "")" id="@group" onclick="filterByGroup(event)">@dict.Key.GetEnumDescription()</p>
+                    }
+                    @foreach (var category in dict.Value)
+                    {
+                        if (category.IsShowOnFilter || category.Id == ViewBag.CategoryId)
+                        {
+                            <div>
+                                <p class="menu-level-2 @(ViewBag.CategoryId == category.Id ? "active": "")" id="@category.Id" name="productCategoryFilter" onclick="filterProductCategory(event)">
+                                    @category.Name
+                                </p>
+                            </div>
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="range-box">
+    <p class="color-text font-weight-bold">@Resource.Sort_By_Price</p>
+    <div class="range">
+        <div class="range-price">
+            <input disabled type="text" name="min" value="@(((decimal)ViewBag.PriceFrom).ToCultureCurrency())">
+            <input disabled type="text" name="max" value="@(((decimal)ViewBag.PriceTo).ToCultureCurrency())" style="text-align:end">
+        </div>
+        <div class="range-slider">
+            <span class="range-selected"></span>
+        </div>
+        <div class="range-input">
+            <input type="range" class="min" min="0" max="@_config.FilterProductPriceUpTo" value="@ViewBag.PriceFrom" step="@_config.FilterProductStep">
+            <input type="range" class="max" min="0" max="@_config.FilterProductPriceUpTo" value="@ViewBag.PriceTo" step="@_config.FilterProductStep">
+        </div>
+    </div>
+    <div class="custom-sort-button">
+        <button class="btn sort-button" onclick="submit()">@Resource.Sort</button>
+    </div>
+</div>
+
+<button class="register-box-title mt-2">
+    <h4 class="color-text font-weight-bold"><a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dang-ky-thiet-ke-vat-pham-ca-nhan" target="_self" class="color-text">Đăng ký thiết kế vật phẩm cá nhân</a></h4>
+</button>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    function filterByGroup(event) {
+        if (event.target.id) {
+            $('#FilterByProductTypeTagId').val('');
+            $('#FilterByCategoryId').val('');
+            $('#FilterByProductTypeId').val('')
+            $('#FilterByGroupId').val(event.target.id)
+        }
+        submit();
+    }
+    
+    function filterByProductType(event) {
+        if (event.target.id) {
+            $('#FilterByProductTypeTagId').val('');
+            $('#FilterByCategoryId').val('');
+            var currentProductTypeId = $('#FilterByProductTypeId').val();
+            var newProductTypeId = currentProductTypeId == event.target.id ? '' : event.target.id;
+            $('#FilterByProductTypeId').val(newProductTypeId)
+            $('#FilterByGroupId').val('')
+        }
+        submit();
+    }
+
+    function filterProductTypeTag(event) {
+        if (event.target.id) {
+            $('#FilterByCategoryId').val('');
+            var currentProductTypeTagId = $('#FilterByProductTypeTagId').val();
+            var newProductTypeTagId = currentProductTypeTagId == event.target.id ? '' : event.target.id;
+            $('#FilterByProductTypeTagId').val(newProductTypeTagId);
+            var newProductTypeId = currentProductTypeTagId == event.target.id ? '' : event.target.getAttribute('data-product-type-id');
+            $('#FilterByProductTypeId').val(event.target.getAttribute('data-product-type-id'));
+            $('#FilterByGroupId').val('')
+        }
+
+        submit();
+    }
+
+    function filterProductCategory(event) {
+        if (event.target.id) {
+            $('#FilterByProductTypeId').val('');
+            $('#FilterByProductTypeTagId').val('');
+            var currentByCategoryId = $('#FilterByCategoryId').val();
+            var newCategoryId = currentByCategoryId == event.target.id ? '' : event.target.id;
+            $('#FilterByCategoryId').val(newCategoryId);
+            $('#FilterByGroupId').val('')
+        }
+        submit();
+    }
+
+    function submit() {
+        setTimeout(() => {
+            $('#products-page-form').submit();
+        });
+    }
+
+    $(document).ready(function() {
+        let rangeMin = 100;
+        const range = document.querySelector(".range-selected");
+        const rangeInput = document.querySelectorAll(".range-input input");
+        const rangePrice = document.querySelectorAll(".range-price input");
+        initPrice(range, rangeInput, rangePrice);
+        rangeInput.forEach((input) => {
+            input.addEventListener("input", (e) => {
+                let minRange = parseInt(rangeInput[0].value);
+                let maxRange = parseInt(rangeInput[1].value);
+                if (maxRange - minRange < rangeMin) {
+                    if (e.target.className === "min") {
+                        var x = maxRange - rangeMin;
+                        rangeInput[0].value = toCultureCurrency(x);
+                        $('#pricefrom').val(x);
+                    } else {
+                        var x = minRange + rangeMin;
+                        rangeInput[1].value = (x);
+                        $('#priceto').val(x);
+                    }
+                } else {
+                    initPrice(range, rangeInput, rangePrice);
+                }
+            });
+        });
+
+        rangePrice.forEach((input) => {
+            input.addEventListener("input", (e) => {
+                let minPrice = rangePrice[0].value;
+                let maxPrice = rangePrice[1].value;
+                if (maxPrice - minPrice >= rangeMin && maxPrice <= rangeInput[1].max) {
+                    if (e.target.className === "min") {
+                        rangeInput[0].value = toCultureCurrency(minPrice);
+                        range.style.left = (minPrice / rangeInput[0].max) * 100 + "%";
+                        $('#pricefrom').val(minPrice);
+                    } else {
+                        rangeInput[1].value = toCultureCurrency(maxPrice);
+                        range.style.right = 100 - (maxPrice / rangeInput[1].max) * 100 + "%";
+                        $('#priceto').val(maxPrice);
+                    }
+                }
+            });
+        });
+
+    })
+
+    function initPrice(range, rangeInput, rangePrice) {
+        let minRange = parseInt(rangeInput[0].value);
+        let maxRange = parseInt(rangeInput[1].value);
+        range.style.left = (minRange / rangeInput[0].max) * 100 + "%";
+        range.style.right = 100 - (maxRange / rangeInput[1].max) * 100 + "%";
+        rangePrice[0].value = toCultureCurrency(minRange);
+        $('#pricefrom').val(minRange);
+        rangePrice[1].value = toCultureCurrency(maxRange);
+        $('#priceto').val(maxRange);
+    }
+
+    function toCultureCurrency(number) {
+        return new Intl.NumberFormat('@cultureName', { style: 'currency', currency: 'VND' }).format(number);
+    }
+</script>

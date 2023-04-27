@@ -1,0 +1,68 @@
+﻿@using LamMocBaoWeb.Resources
+@using System.Web
+@using Services.Services
+@using Shared.Models
+@inject IServiceConfig _config
+@{
+    ViewData["Title"] = @Resource.Label_Home_Page;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm("", "trang-chu", FormMethod.Post))
+{
+    // Carousel:
+    <div id="chuyen-gia">
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img class="d-block w-100" src="./carouselLMB.jpg" alt="First slide" loading="eager">
+                </div>
+                <div class="carousel-item">
+                    <img class="d-block w-100" src="./carouselLMB1.jpg" alt="Second slide" loading="lazy">
+                </div>
+                <div class="carousel-item">
+                    <img class="d-block w-100" src="./carouselLMB2.jpg" alt="Third slide" loading="lazy">
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-md-4 more-info">
+                    <h5>@Resource.HomePage_PersonalizedProductDesignContent</h5>
+                    <p>@_config.HompageContent.PersonalizedProductDesignContent</p>
+                    <a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=dang-ky-thiet-ke-vat-pham-ca-nhan"><h6 >@Resource.Common_MakeAApointment_Immediately</h6></a>
+                </div>
+                <div class="col-md-4 more-info middle-info">
+                    <h5>@Resource.HomePage_AnalysisOfFateContent</h5>
+                    <p>@_config.HompageContent.AnalysisOfFateContent</p>
+                    <a href="@Url.ActionLink("MakeAAppointment", "Appointment")?selected=phan-tich-menh-so"><h6>@Resource.Common_MakeAApointment_Immediately</h6></a>
+                </div>
+                <div class="col-md-4 more-info">
+                    <h5>@Resource.HomePage_CollectRareItemsContent</h5>
+                    <p>@_config.HompageContent.CollectRareItemsContent</p>
+                    <a href="@Url.ActionLink("Index", "Product")?filter.group=@CategoryGroup.VatPhamSuuTam"><h6>@Resource.HomePage_Discover_More</h6></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    //VẬT PHẨM THEO NGŨ HÀNH
+    @await Html.PartialAsync("VatPhamTheoNguHanh.cshtml")
+
+    // DANH MỤC SẢN PHẨM
+    @await Html.PartialAsync("DanhMucSanPham.cshtml")
+
+    // BÁO CHÍ:
+    @await Html.PartialAsync("BaoChi.cshtml")
+
+    // CẢM NHẬN CỦA KHÁCH HÀNG:
+    @await Html.PartialAsync("CamNhanKhachHang.cshtml")
+
+    // KIẾN THỨC:
+    @await Html.PartialAsync("KienThuc.cshtml")
+}

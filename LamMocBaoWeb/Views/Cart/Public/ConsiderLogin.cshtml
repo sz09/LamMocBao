@@ -1,0 +1,27 @@
+﻿@using LamMocBaoWeb.Resources
+@model LoginModel
+
+@{
+    ViewData["Title"] = @Resource.Label_Home_Page;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var error = ViewData.ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault();
+}
+@*<div class="col-md-12">
+    <div class="row">@Resource.Login_Title_Consider_Login</div>
+
+    <button>
+        <a href="/gio-hang/login">
+            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        </a>
+    </button>
+    <button>@Resource.Login_Button_Login</button>
+</div>*@
+<div class="row col-md-12">
+    <div class="col-md-6">
+        @await Html.PartialAsync("../../User/Public/Login.cshtml")
+    </div>
+
+    <div class="col-md-6">
+        @await Html.PartialAsync("../../User/Public/Register.cshtml")
+    </div>
+</div>

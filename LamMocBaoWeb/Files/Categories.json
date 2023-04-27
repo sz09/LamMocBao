@@ -1,0 +1,262 @@
+﻿[
+  {
+    "Name": "San hô",
+    "HomePageSequenceNumber": 1,
+    "FilterSequenceNumber": 1,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "OriginalType": 2,
+    "DisplayImageUrl": "category-image/sanho.jpg"
+  },
+  {
+    "Name": "Tử đàn",
+    "HomePageSequenceNumber": 2,
+    "FilterSequenceNumber": 4,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "OriginalType": 3,
+    "DisplayImageUrl": "category-image/tudan.jpg"
+  },
+  {
+    "Name": "Huyết long",
+    "HomePageSequenceNumber": 3,
+    "FilterSequenceNumber": 5,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "OriginalType": 4,
+    "DisplayImageUrl": "category-image/huyetlong.jpg"
+  },
+  {
+    "Name": "Ngọc Jade",
+    "HomePageSequenceNumber": 4,
+    "FilterSequenceNumber": 8,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/ngocjade.jpg"
+  },
+  {
+    "Name": "Phỉ Thúy",
+    "HomePageSequenceNumber": 5,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/phithuy.jpg"
+  },
+  {
+    "Name": "Đá quý",
+    "HomePageSequenceNumber": 6,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/daquy.jpg"
+  },
+  {
+    "Name": "Trầm hương",
+    "HomePageSequenceNumber": 7,
+    "FilterSequenceNumber": 3,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "OriginalType": 1,
+    "DisplayImageUrl": "category-image/tramhuong.jpg"
+  },
+  {
+    "Name": "Vòng tay",
+    "HomePageSequenceNumber": 8,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/vongtay.jpg"
+  },
+  {
+    "Name": "Vòng cổ",
+    "HomePageSequenceNumber": 9,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/vongco.jpg"
+  },
+  {
+    "Name": "Nhẫn",
+    "HomePageSequenceNumber": 10,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/nhan.jpg"
+  },
+  {
+    "Name": "Để bàn",
+    "HomePageSequenceNumber": 11,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/deban.jpg"
+  },
+  {
+    "Name": "Treo xe",
+    "HomePageSequenceNumber": 12,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/treoxe.jpg"
+  },
+  {
+    "Name": "Tượng phật",
+    "HomePageSequenceNumber": 13,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/tuongphat.jpg"
+  },
+  {
+    "Name": "Nhan xông",
+    "HomePageSequenceNumber": 14,
+    "ShowOnHomePage": true,
+    "ShowOnFilter": false,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": "category-image/nhanxong.jpg"
+  },
+  {
+    "Name": "Hổ phách",
+    "HomePageSequenceNumber": 15,
+    "FilterSequenceNumber": 2,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Bạch ngọc",
+    "HomePageSequenceNumber": 16,
+    "FilterSequenceNumber": 6,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Ngọc bích",
+    "HomePageSequenceNumber": 17,
+    "FilterSequenceNumber": 7,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Thạch anh tóc",
+    "HomePageSequenceNumber": 18,
+    "FilterSequenceNumber": 9,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Các loại đá khác",
+    "HomePageSequenceNumber": 19,
+    "FilterSequenceNumber": 10,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": false,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Các loại gỗ khác",
+    "HomePageSequenceNumber": 20,
+    "FilterSequenceNumber": 11,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": false,
+    "Group": 1,
+    "DisplayImageUrl": ""
+  },
+
+
+
+  {
+    "Name": "Rudkrasha 9 mukhi",
+    "HomePageSequenceNumber": 21,
+    "FilterSequenceNumber": 13,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 2,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Chiên đàn hương Ấn Độ",
+    "HomePageSequenceNumber": 22,
+    "FilterSequenceNumber": 14,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 2,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Hoàng đàn Tuyết liên",
+    "HomePageSequenceNumber": 23,
+    "FilterSequenceNumber": 15,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 2,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Sưa",
+    "HomePageSequenceNumber": 24,
+    "FilterSequenceNumber": 12,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 2,
+    "DisplayImageUrl": ""
+  },
+
+
+  {
+    "Name": "Nam",
+    "HomePageSequenceNumber": 25,
+    "FilterSequenceNumber": 16,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 3,
+    "DisplayImageUrl": ""
+  },
+  {
+    "Name": "Nữ",
+    "HomePageSequenceNumber": 26,
+    "FilterSequenceNumber": 17,
+    "ShowOnHomePage": false,
+    "ShowOnFilter": true,
+    "AssignableToProduct": true,
+    "Group": 3,
+    "DisplayImageUrl": ""
+  }
+]

@@ -1,0 +1,213 @@
+﻿@using LamMocBaoWeb.Controllers
+@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@using Shared.Models
+@using Shared.Utilities
+@model CreateProductModel
+@inject IServiceConfig _config 
+
+@{
+    ViewData["Title"] = @Resource.Label_Products;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@using (Html.BeginForm("ProductAdminCreate", "Product", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.Product_CreateNew_Product</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Create
+                    </button>
+                    @Html.ActionLink(@Resource.Common_Close, "ProductAdmin", "Product", null, new {
+                        @class="btn btn-sm btn-danger"
+                    })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Product_Name</label>
+                            <input type="text" class="form-control" placeholder="@Resource.Product_Name" name="Name" value="@Model.Name">
+                            @Html.ValidationMessageFor(d => d.Name)
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.Product_From</label>
+                            <input type="text" class="form-control" placeholder="@Resource.Product_From" name="ProductFrom" value="@Model.ProductFrom">
+                            @Html.ValidationMessageFor(d => d.ProductFrom)
+                        </div>
+                        @*<div class="form-group row">
+                            <label>@Resource.Label_Categories</label>
+                             <select data-val="true" id="CategoryId" class="form-control" name="CategoryId">
+                                <option value="">@Resource.Label_Common_PleaseSelectItem</option>
+                                @if(ViewBag.Categories != null)
+                                {
+                                    foreach (var item in (SelectList)ViewBag.Categories)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(d => d.CategoryId)
+                        </div>*@
+                        <div class="form-group row">
+                            <label>@Resource.Label_Categories</label>
+                            <div class="col-md-12">
+                                 @if(ViewBag.Categories != null)
+                                 {
+                                    int index = 0;
+                                    foreach (var group in (Dictionary<CategoryGroup, List<Category>>)ViewBag.Categories)
+                                    {  
+                                        <div class="row col-md-12 d-block">
+                                            <p> <b>@group.Key.GetEnumDescription()</b></p>
+                                            @foreach (var item in group.Value)
+                                            {
+                                                <div class="form-check form-check-inline col-md-2">
+                                                    <input type="checkbox" class="form-check-input" name="CategoryIds[@index]" value="@item.Id" id="@item.Id"/>
+                                                    <label class="form-check-label" for="@item.Id"> @item.Name </label>
+                                                </div>
+                                                index++;
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.Label_ProductTypes</label>
+                              <select data-val="true" id="ProductTypeId" class="form-control" name="ProductTypeId">
+                                <option value="">@Resource.Label_Common_PleaseSelectItem</option>
+                                @if(ViewBag.ProductTypes != null)
+                                {
+                                    foreach (var item in (SelectList)ViewBag.ProductTypes)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(d => d.ProductTypeId)
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label>@Resource.Label_Tags</label>
+                            <div class="col-md-12">
+                                @if(ViewBag.Tags != null)
+                                {
+                                    int index = 0;
+                                    @foreach (var item in (SelectList)ViewBag.Tags)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input type="checkbox" class="form-check-input" name="TagIds[@index]" value="@item.Value" id="@item.Value"/>
+                                            <label class="form-check-label" for="@item.Value"> @item.Text </label>
+                                        </div>
+                                        index++;
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.Label_Sizes</label>
+                            <div class="col-md-12">
+                                @if(ViewBag.Sizes != null)
+                                {
+                                    int index = 0;
+                                    @foreach (var item in (List<IdLabel>)ViewBag.Sizes)
+                                    {
+                                        <div class="form-check form-check-inline col-md-5">
+                                            <div class="col-md-4">
+                                                <input type="checkbox" class="form-check-input" name="SizeIds[@index]" value="@item.Id" id="check-box-size-@item.Id"/>
+                                                <label class="form-check-label" for="check-box-size-@item.Id"> @item.Label </label>
+                                            </div>
+                                            <div class="input-group col-md-8" id="price-by-size-@item.Id">
+                                                <input type="text" class="form-control currency" disabled placeholder="@Resource.Product_SellingPrice" name="PriceBySizes[@item.Id]" aria-describedby="currency-3">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text" id="currency-3">@_config.Currency_Symbol</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        index ++;
+                                    }
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label>@Resource.Label_Materials</label>
+                            <div class="col-md-12">
+                                @if(ViewBag.Materials != null)
+                                {
+                                    int index = 0;
+                                    @foreach (var item in (SelectList)ViewBag.Materials)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input type="checkbox" class="form-check-input" name="MaterialIds[@index]" value="@item.Value" id="@item.Value"/>
+                                            <label class="form-check-label" for="@item.Value"> @item.Text </label>
+                                        </div>
+                                        index++;
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-6 pl-0">
+                                <label>@Resource.Product_PurchasingPrice</label>
+                                <div class="input-group">
+                                    <input type="text" value="@Model.PurchasingPrice" class="form-control currency" placeholder="@Resource.Product_PurchasingPrice" name="PurchasingPrice" aria-describedby="currency-1">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="currency-1">@_config.Currency_Symbol</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 pr-0">
+                                <label>@Resource.Product_SellingPrice</label>
+                                <div class="input-group">
+                                    <input type="text" value="@Model.SellingPrice" class="form-control currency" placeholder="@Resource.Product_SellingPrice" name="SellingPrice" aria-describedby="currency-2">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="currency-2">@_config.Currency_Symbol</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.Product_Summary</label>
+                            <textarea class="form-control" placeholder="@Resource.Product_Summary" name="Description" rows="3">@Model.Description </textarea>
+                        </div>
+                        <div class="form-group row">
+                            <label>@Resource.Product_Description</label>
+                            <textarea class="form-control" placeholder="@Resource.Product_Description" name="Infomations" rows="7">@Model.Infomations </textarea>
+                        </div>
+                        <div class="form-group row">
+                            @await Html.PartialAsync("../../Upload/Upload.cshtml", new CommonDataTransfer { Data = Model.Id })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+        $("input.currency").on('keyup', function(){
+            if (!$(this).val()) {
+                return;
+            }
+
+            var n = parseInt($(this).val().replace(/\D/g,''),10);
+            $(this).val(n.toLocaleString("vi-VN"));
+        });
+
+        $('[id^=check-box-size-]').on('change', function(event) {
+            var sizeId = event.currentTarget.id.replace('check-box-size-', '');
+            $(`#price-by-size-${sizeId} input`).prop('disabled', (i, v) => !v);
+        })
+    });
+</script>

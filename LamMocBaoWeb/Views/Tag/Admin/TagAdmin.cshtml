@@ -1,0 +1,137 @@
+﻿@using LamMocBaoWeb.Resources
+@using Services.Services
+@using Shared.Utilities
+@using System.Web
+@using LamMocBaoWeb.Utilities
+@model ResultListView<Shared.Models.Tag>
+@inject IServiceConfig _config
+
+@{
+    ViewData["Title"] = @Resource.Label_Tags;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    #from-server-dom {
+        /* display: none; */
+        position: fixed;
+        top: 100px !important;
+        left: 30%;
+        width: 50%;
+    }
+</style>
+<link rel="stylesheet" href="~/lib/jquery/css/jquery-confirm.min.css" />
+@using (Html.BeginForm("TagAdmin", "Tag", FormMethod.Get, new { id = "product-type-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block m-auto col-10 row">
+            <input id="searchTag" class="search-box form-control form-control-sm d-block"
+                   placeholder="@Resource.Tag_Search_Placeholder"
+                   name="Search"
+                   value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-info d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+        <div class="actions col-2 text-right">
+             @Html.ActionLink(Resource.Common_Create, "TagAdminCreate", "Tag", null, new  {
+                @class = "btn btn-info add__button__admin",
+            })
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="table-wrap table-responsive-lg">
+                <table class="table table__admin table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">
+                                @Resource.Tag_Name
+                            </th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr id="content-@item.Id" class="hideContent">
+                                <td>
+                                    <div>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a class="h5" href="@Url.Action("TagAdminEdit", "Tag", new { id = item.Id})">
+                                            <i class="fas fa-edit"></i>
+                                        </a> |
+                                        <a class="h5" onclick="deleteTag('@item.Id', '@item.Name')"><i class="fas fa-trash"></i></a> 
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    function createTag() {
+        LoaderService.Show();
+        $.ajax({
+            url: 'tag/create',
+            success: function (html, textstatus, jqxhr) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+    function editTag(id) {
+        LoaderService.Show();
+        $.ajax({
+            url: '/admin/tag/' + id,
+            success: function (html, textStatus, jqXHR) {
+                DialogBox.Show(html);
+                LoaderService.Hide();
+            }
+        });
+    }
+
+    function deleteTag(id, name) {
+        function deleteFunc() {
+            LoaderService.Show();
+            $.ajax({
+                method: 'delete',
+                url: '/admin/tag/delete/' + id
+            }).done(function() {
+                window.location.href = "@Url.Action("TagAdmin", "Tag")";
+            });
+        }
+        DialogBox.Confirm(String.format('@Resource.Produuct_Delete_Confirm', name), deleteFunc, '@Resource.Buttons_Yes', '@Resource.Buttons_No');
+
+    }
+
+    function onSearch() {
+        $('#searchTag').submit();
+    }
+
+    function showMore(value) {
+        if ($(`#content-${value}`).hasClass('hideContent')) {
+            $(`#content-${value}`).removeClass("hideContent")
+            $(`#content-${value}`).addClass("showContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-down"></i>`);
+        } else {
+            $(`#content-${value}`).removeClass("showContent")
+            $(`#content-${value}`).addClass("hideContent");
+            $(`#myBtn-${value}`).html(`<i class="fa-solid fa-angle-right"></i>`);
+        };
+    }
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/upload-image.js" asp-append-version="true"></script>

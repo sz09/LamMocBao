@@ -1,0 +1,49 @@
+﻿@using LamMocBaoWeb.Controllers
+@using LamMocBaoWeb.Models
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.ViewModels
+@using Services.Services
+@model CreateMaterialModel
+@inject IServiceConfig _config 
+
+@{
+    ViewData["Title"] = @Resource.Label_Materials;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@using (Html.BeginForm("MaterialAdminCreate", "Material", FormMethod.Post))
+{
+    <div class="main-dialog" id="main-modal" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Resource.Material_CreateNew_Material</h5>
+                <div class="button-group pull-right">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        @Resource.Common_Create
+                    </button>
+                    @Html.ActionLink(@Resource.Common_Close, "MaterialAdmin", "Material", null, new {
+                        @class="btn btn-sm btn-danger"
+                    })
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="form-content">
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Material_Name</label>
+                            <input type="text" class="form-control" placeholder="@Resource.Material_Name" name="Name" value="@Model.Name">
+                            @Html.ValidationMessageFor(d => d.Name)
+                        </div>
+                    </div>
+                    <div class="col-md-12 ">
+                        <div class="form-group row">
+                            <label>@Resource.Material_Description</label>
+                            <textarea class="form-control" placeholder="@Resource.Material_Description" name="Description" rows="7">@Model.Description </textarea>
+                            @Html.ValidationMessageFor(d => d.Description)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

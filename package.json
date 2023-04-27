@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "bootstrap": "^3.4.1",
+    "jquery-confirm": "^3.3.4",
+    "jquery-modal": "^0.9.2",
+    "remodal": "^1.1.1"
+  }
+}

@@ -1,0 +1,44 @@
+﻿<input type="hidden" id="FilterByProductTypeId" name="filter.type" value="@ViewBag.ProductTypeId" />
+<input type="hidden" id="FilterByGroupId" name="filter.group" value="@ViewBag.Group" />
+<input type="hidden" id="FilterByProductTypeTagId" name="filter.tag" value="@ViewBag.ProductTypeTagId" />
+<input type="hidden" id="FilterByCategoryId" name="filter.category" value="@ViewBag.CategoryId" />
+<input type="hidden" id="SearchTerm" name="search" value="@ViewBag.Search" />
+<input readonly type="hidden" id="pricefrom" name="filter.pricefrom" value="@ViewBag.PriceFrom">
+<input readonly type="hidden" id="priceto" name="filter.priceto" value="@ViewBag.PriceTo">
+@*<div class="group-menu-current-filter">
+    @if (ViewBag.FilterByProductType != null)
+    {
+        <button class="btn btn-sm paid-button" onclick="removeFilterProductType()"> @ViewBag.FilterByProductType <i class="fa fa-minus"></i> </button>
+    }
+    @if (ViewBag.FilterByProductTypeTag != null)
+    {
+        <button class="btn btn-sm paid-button" onclick="removeFilterProductTypeTag()"> @ViewBag.FilterByProductTypeTag <i class="fa fa-minus"></i> </button>
+    }
+    @if (ViewBag.FilterByCategory != null)
+    {
+        <button class="btn btn-sm paid-button" onclick="removeFilterCategory()"> @ViewBag.FilterByCategory <i class="fa fa-minus"></i> </button>
+    }
+</div>*@
+
+<script>
+    function removeFilterProductType() {
+        $('#FilterByProductTypeId').val('');
+        submit();
+    }
+
+    function removeFilterProductTypeTag() {
+        $('#FilterByProductTypeTagId').val('');
+        submit();
+    }
+
+    function removeFilterCategory() {
+        $('#FilterByCategoryId').val('');
+        submit();
+    }
+
+    function submit() {
+        setTimeout(() => {
+            $('#products-page-form').submit();
+        });
+    }
+</script>

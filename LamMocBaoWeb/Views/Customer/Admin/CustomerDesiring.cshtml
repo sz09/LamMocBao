@@ -1,0 +1,90 @@
+﻿@using LamMocBaoWeb.Utilities
+@using LamMocBaoWeb.Resources
+@using System.Web
+@using System.Linq
+@model ResultListView<Shared.Models.CustomerDesiring>
+@{
+    ViewData["Title"] = @Resource.Label_Advising;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@*<p>
+        <a asp-action="Create">Create New</a>
+    </p>*@
+
+@using (Html.BeginForm("Index", "Customer", FormMethod.Get, new { id = "customer-admin-form" }))
+{
+    <div class="row">
+        <div class="search-box-group d-block m-auto col-10 row">
+            <input id="searchProduct" class="search-box form-control form-control-sm d-block"
+                   placeholder="@Resource.Product_Search_Placeholder"
+                   name="Search"
+                   value="@ViewBag.SearchText">
+            <button class="search-button btn btn-sm btn-outline-dark d-block" onclick="onSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="table-wrap table-responsive-lg">
+                <table class="table table__admin table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 15%">
+                                @Resource.Product_Name
+                            </th>
+                            <th style="width: 25%">
+                                @Resource.Customer_Desiring_Product
+                            </th>
+                            <th style="width: 25%">
+                                @Resource.Customer_Phone
+                            </th>
+                            <th style="width: 25%">
+                                @Resource.Customer_Email
+                            </th>
+                            <th style="width: 10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Data)
+                        {
+                            <tr id="content-@item.Id" class="hideContent">
+                                <td>
+                                    <div>
+                                        @Html.DisplayFor(modelItem => item.CustomerName)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        @item.CustomerPrefereds.Display(d => d.PreferedProduct.Name)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        @Html.DisplayFor(modelItem => item.CustomerPhoneNumber)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        @Html.DisplayFor(modelItem => item.CustomerEmail)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a href="/admin/khach-hang/dat-hang/@item.Id" target="_blank"><i class="fa fa-eye"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @Html.Raw(@PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page, "float-right"))
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+
+</script>

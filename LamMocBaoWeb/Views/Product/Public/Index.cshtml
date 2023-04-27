@@ -1,0 +1,137 @@
+﻿@using LamMocBaoWeb.ViewModels
+@using Newtonsoft.Json
+@using LamMocBaoWeb.Resources;
+@using LamMocBaoWeb.Utilities;
+@using System.Linq;
+@using System.Web
+@using System.Collections
+@model ResultListView<LamMocBaoWeb.ViewModels.ProductViewModel>
+
+@{
+    ViewData["Title"] = @Resource.Label_Products;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row col-md-12 m-auto p-0">
+    <div class="col-md-3 p-0">
+        @await Html.PartialAsync("Public/ProductFilterByCategory")
+    </div>
+    <div class="col-md-9  p-0">
+        @using (Html.BeginForm("Index", "Product", FormMethod.Get, new {id = "products-page-form"}))
+        {
+            @await Html.PartialAsync("Public/CurrentFilterProduct")
+            @if (ViewBag.HasProduct)
+            {
+                <div class="form-group custom-filter-select">
+                    <label class="color-text mr-1" for="orderProduct">Sắp xếp theo:</label>
+                    <select class="form-control" id="orderProduct" name="filter.order">
+                        @if(ViewBag.CurrentSort == "moinhat")
+                        {
+                            <option value="moinhat" selected>Sản phẩm mới nhất</option>
+                        }
+                        else
+                        {
+                            <option value="moinhat">Sản phẩm mới nhất</option>
+                        }
+                        
+                        @if(ViewBag.CurrentSort == "banchay")
+                        {
+                            <option value="banchay" selected>Sản phẩm bán chạy nhất</option>
+                        }
+                        else
+                        {
+                            <option value="banchay">Sản phẩm bán chạy nhất</option>
+                        }
+                        
+                        @if(ViewBag.CurrentSort == "giathaptoicao")
+                        {
+                            <option value="giathaptoicao" selected>Giá từ thấp đến cao</option>
+                        }
+                        else
+                        {
+                            <option value="giathaptoicao">Giá từ thấp đến cao</option>
+                        }
+
+                        @if(ViewBag.CurrentSort == "giacaotoithap")
+                        {
+                            <option value="giacaotoithap" selected>Giá từ cao đến thấp</option>
+                        }
+                        else
+                        {
+                            <option value="giacaotoithap">Giá từ cao đến thấp</option>
+                        }
+                    </select>
+                </div>
+                <div class="">
+                    @foreach (var row in ViewBag.ProductRows as IEnumerable<IEnumerable<ProductViewModel>>)
+                    {
+                        <div class="row col-md-12 p-0 m-auto">
+                            @foreach (var product in row)
+                            {
+                                <div class="col-lg-3 col-6 product-bound" link-name="@Url.ActionLink("ByLinkName", "Product", new {name = @product.LinkName})">
+                                    <div class="card product-item" style="margin-bottom: 1rem">
+                                        <div style="height: 200px">
+                                            @Html.Raw(HttpUtility.HtmlDecode(product.ImageUrls.Take(1).ToImageSlider(product.Id)))
+                                        </div>
+                                        <div class="card-body custom-card-body">
+                                            <p class="color-text text-center">@product.Name</p>
+                                            <ul class="product-tags">
+                                                @foreach (var tag in product.Tags)
+                                                {
+                                                    <li>@tag.Label</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div class="product-price-detail"> @product.SellingPriceStr </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    @Html.Raw(HttpUtility.HtmlDecode(PageUtitlities.Pagination(Model.MaxPage, ViewBag.Page)))
+                </div>
+            }
+            else
+            {
+                <div class="container pt-3">
+                    <p class="color-text"> <i>@Resource.Product_No_Result </i></p>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+
+@*@await Html.PartialAsync("../../Home/KienThuc.cshtml")*@
+@*@await Html.PartialAsync("../../Home/CamNhanKhachHang.cshtml")*@
+@await Html.PartialAsync("../../Shared/ViSaoNenChon.cshtml")
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        CustomerHelper.DisplayInterestedIn();
+        registerOpenProduct();
+        registerOrder();
+    })
+    
+    function registerOpenProduct() {
+       $('.product-bound').click(function(event) {
+            var elems = $(event.target).parents('.product-bound');
+           if (elems && elems.length) {
+               var elem = elems[0];
+               if (elem && elem.getAttribute('link-name')) {
+                    location.href = elem.getAttribute('link-name')
+               }
+           }
+        });
+    }
+
+    function registerOrder() {
+        $("#orderProduct").change(function() {
+            $('#products-page-form').submit();
+        }) 
+    }
+
+    function onSearch() {
+        $('#searchProduct').submit();
+    }
+</script>
